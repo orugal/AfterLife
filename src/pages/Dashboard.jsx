@@ -38,7 +38,7 @@ const Dashboard = () => {
                         className="w-10 h-10 rounded-full"
                     />
                     <button onClick={logout} className="text-gray-400 hover:text-white">
-                        <LogOut className="w-6 h-6" />
+                        <LogOut className="w-6 h-6 cursor-pointer" />
                     </button>
                 </div>
             </div>
