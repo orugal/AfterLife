@@ -4,17 +4,13 @@ import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
 import DocumentsTab from "../components/dashboard/DocumentsTab";
 import { useAuth } from "../context/AuthContext";
+import LifeStatus from "../components/dashboard/LifeStatus";
+import NotificationsPanel from "../components/dashboard/NotificationsPanel";
 
 const Dashboard = () => {
-      const { user, logout } = useAuth();
-      const [lastCheck, setLastCheck] = useState(null);
-      const [notifications, setNotifications] = useState([]);
-      const [activeTab, setActiveTab] = useState('documents');
-        const handleAliveCheck = () => {
-            const now = new Date().toLocaleString();
-            setLastCheck(now);
-            setNotifications([...notifications, `✅ Check-in registrado: ${now}`]);
-        };
+    const { user, logout } = useAuth();
+    const [activeTab, setActiveTab] = useState('documents');
+    const [notifications, setNotifications] = useState([]);
 
     return (
     <>
@@ -50,31 +46,8 @@ const Dashboard = () => {
             
             {/* Panel de Estado de Vida */}
             <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                    <Heart className="w-6 h-6 text-red-500 mr-2" />
-                    Estado de Vida
-                </h2>
-                
-                <div className="text-center">
-                    <button
-                    onClick={handleAliveCheck}
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg"
-                    >
-                    <Heart className="w-8 h-8 mx-auto mb-2" />
-                    ¡Estoy Vivo!
-                    </button>
-                    
-                    {lastCheck && (
-                    <div className="mt-4 p-4 bg-green-50 rounded-xl">
-                        <p className="text-sm text-green-700">
-                        <Clock className="w-4 h-4 inline mr-1" />
-                        Último check-in: {lastCheck}
-                        </p>
-                    </div>
-                    )}
-                </div>
-                </div>
+
+                <LifeStatus setNotifications={setNotifications} />
 
                 {/* Configuración de Notificaciones */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -171,16 +144,7 @@ const Dashboard = () => {
 
             {/* Notificaciones */}
             {notifications.length > 0 && (
-            <div className="mt-8 bg-white rounded-2xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h3>
-                <div className="space-y-2">
-                {notifications.slice(-5).map((notification, index) => (
-                    <div key={index} className="p-3 bg-green-50 rounded-lg text-sm text-green-700">
-                    {notification}
-                    </div>
-                ))}
-                </div>
-            </div>
+                <NotificationsPanel notifications={notifications} />
             )}
         </div>
         </div>
