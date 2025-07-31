@@ -1,12 +1,39 @@
-# React + Vite
+# After Life 💜
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de supervivencia digital que protege tu información crítica para el futuro.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Login con Google y GitHub** - Autenticación segura con proveedores confiables
+- **Interfaz interactiva** - Diseño dinámico que responde al movimiento del mouse
+- **Múltiples temas** - 6 esquemas de color que cambian con un click
+- **Diseño responsivo** - Optimizado para dispositivos móviles y desktop
 
-## Expanding the ESLint configuration
+## 🛠️ Tecnologías
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React 18
+- React Router
+- Tailwind CSS
+- Lucide React (iconos)
+
+## 📦 Instalación
+
+```bash
+npm install
+npm run dev
+```
+
+## 🎨 Uso
+
+1. Abre la aplicación en tu navegador
+2. Haz click en el fondo para cambiar entre temas
+3. Selecciona tu método de login preferido
+4. El mouse controla los efectos visuales del fondo
+
+## 📱 Demo
+
+La aplicación incluye usuarios de prueba para demostración. En producción, integrar con las APIs reales de Google y GitHub OAuth.
+
+---
+
+*Protege lo que importa, para cuando ya no estés aquí.*
