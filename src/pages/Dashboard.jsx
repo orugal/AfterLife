@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Heart, Clock, FileText, Key, Server, Bell} from 'lucide-react';
+import { Heart, Clock, FileText, Key, Server, Bell, LogOut } from 'lucide-react';
 import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
 import DocumentsTab from "../components/dashboard/DocumentsTab";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
-      const [user, setUser] = useState(null);
+      const { user, logout } = useAuth();
       const [lastCheck, setLastCheck] = useState(null);
       const [notifications, setNotifications] = useState([]);
       const [activeTab, setActiveTab] = useState('documents');
@@ -27,15 +28,18 @@ const Dashboard = () => {
                 <h1 className="text-2xl font-bold text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
-                <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
-                </div>
-                <img 
-                    src={user?.avatar} 
-                    alt="Avatar" 
-                    className="w-10 h-10 rounded-full"
-                />
+                    <div className="text-right">
+                        <p className="text-sm font-medium text-white">{user?.name}</p>
+                        <p className="text-xs text-gray-400">{user?.email}</p>
+                    </div>
+                    <img
+                        src={user?.avatar}
+                        alt="Avatar"
+                        className="w-10 h-10 rounded-full"
+                    />
+                    <button onClick={logout} className="text-gray-400 hover:text-white">
+                        <LogOut className="w-6 h-6" />
+                    </button>
                 </div>
             </div>
             </div>
