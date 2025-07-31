@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { Heart, Shield } from 'lucide-react';
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const Login = () => {
-    const [user, setUser] = useState(null);
-    const [lastCheck, setLastCheck] = useState(null);
-    const [currentScreen, setCurrentScreen] = useState('login');
     const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
     const [colorScheme, setColorScheme] = useState(0);
     const navigate = useNavigate();
+    const { user, loginWithGoogle, loginWithGitHub, loading } = useAuth();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
 
     const colorSchemes = [
         {
@@ -79,7 +85,6 @@ const Login = () => {
     }, []);
 
     const handleBackgroundClick = (e) => {
-        // Solo cambiar color si el click es en el fondo, no en la tarjeta
         if (e.target === e.currentTarget) {
             setColorScheme((prev) => (prev + 1) % colorSchemes.length);
         }
@@ -87,28 +92,28 @@ const Login = () => {
 
     const currentScheme = colorSchemes[colorScheme];
 
-    const handleGoogleLogin = () => {
-        const mockUser = {
-            name: 'Usuario Demo (Google)',
-            email: 'usuario@gmail.com',
-            avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-            provider: 'google'
-        };
-        setUser(mockUser);
-        setLastCheck(new Date().toLocaleString());
-        navigate('/dashboard');
+    const handleGoogleLogin = async () => {
+        try {
+            await loginWithGoogle();
+            toast.success("Logged in successfully!");
+            navigate('/dashboard');
+        } catch (error) {
+            toast.error("Failed to log in with Google.");
+        }
     }
 
-    const handleGitHubLogin = () => {
-        const mockUser = {
-            name: 'Usuario Demo (GitHub)',
-            email: 'usuario@github.com',
-            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-            provider: 'github'
-        };
-        setUser(mockUser);
-        setLastCheck(new Date().toLocaleString());
-        navigate('/dashboard');
+    const handleGitHubLogin = async () => {
+        try {
+            await loginWithGitHub();
+            toast.success("Logged in successfully!");
+            navigate('/dashboard');
+        } catch (error) {
+            toast.error("Failed to log in with GitHub.");
+        }
+    }
+
+    if (loading) {
+        return <div>Loading...</div>; // Or a spinner component
     }
 
     return (
