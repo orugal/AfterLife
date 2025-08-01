@@ -10,7 +10,6 @@ import NotificationsPanel from "../components/dashboard/NotificationsPanel";
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('documents');
-    const [notifications, setNotifications] = useState([]);
 
     return (
     <>
@@ -47,7 +46,7 @@ const Dashboard = () => {
             {/* Panel de Estado de Vida */}
             <div className="lg:col-span-1">
 
-                <LifeStatus setNotifications={setNotifications} />
+                <LifeStatus />
 
                 {/* Configuración de Notificaciones */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -143,9 +142,7 @@ const Dashboard = () => {
             </div>
 
             {/* Notificaciones */}
-            {notifications.length > 0 && (
-                <NotificationsPanel notifications={notifications} />
-            )}
+            <NotificationsPanel />
         </div>
         </div>
     </>
