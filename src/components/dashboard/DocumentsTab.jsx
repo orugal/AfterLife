@@ -334,7 +334,7 @@ const DocumentsTab = () => {
                                     value={currentTag}
                                     onChange={(e) => setCurrentTag(e.target.value)}
                                     onKeyDown={handleTagKeyDown}
-                                    className="flex-grow bg-transparent focus:outline-none focus:ring-0 border-0 p-1 text-sm text-gray-900 dark:text-white"
+                                    className="flex-grow bg-transparent w-50 focus:outline-none focus:ring-0 border-0 p-1 text-sm text-gray-900 dark:text-white"
                                     placeholder="Añadir tag y presionar Enter"
                                 />
                             </div>
@@ -354,7 +354,7 @@ const DocumentsTab = () => {
                                 rows={4}
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
-                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                className="p-4 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                 placeholder="Cualquier detalle extra sobre el documento..."
                             />
                         </div>
@@ -394,7 +394,7 @@ const DocumentsTab = () => {
                                 placeholder="Buscar por nombre..."
                                 value={searchTerm}
                                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                                className="pl-10 pr-4 py-2 w-48 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                className="dark:text-white pl-10 pr-4 py-2 w-48 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
                         <div className="relative">
@@ -402,7 +402,7 @@ const DocumentsTab = () => {
                              <select
                                 value={selectedTag}
                                 onChange={(e) => { setSelectedTag(e.target.value); setCurrentPage(1); }}
-                                className="pl-10 pr-4 py-2 w-48 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
+                                className="dark:text-white pl-10 pr-4 py-2 w-48 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
                              >
                                 <option value="">Todos los tags</option>
                                 {allTags.map(tag => (
@@ -432,7 +432,7 @@ const DocumentsTab = () => {
                             <p className="mt-1 text-sm text-gray-500">Prueba con otro término de búsqueda o filtro.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             {currentDocuments.map((doc) => (
                                 <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                     <a href={doc.file_path} target="_blank" rel="noopener noreferrer" className="flex items-center min-w-0">
@@ -482,7 +482,10 @@ const DocumentsTab = () => {
 
             {/* Document Details Modal */}
             {isModalOpen && selectedDoc && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black/60 overlay-blur bg-opacity-50 z-50 flex items-center justify-center p-4" style={{ 
+                     backdropFilter: 'blur(2px)',
+                    WebkitBackdropFilter: 'blur(2px)' // Para Safari
+                    }}>
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-2xl transform transition-all">
                         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -504,7 +507,7 @@ const DocumentsTab = () => {
                                         value={editedNotes}
                                         onChange={(e) => setEditedNotes(e.target.value)}
                                         rows={4}
-                                        className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                        className="p-4 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                                     />
                                ) : (
                                    <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedDoc.notes || 'No hay notas adicionales.'}</p>
