@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Bell } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Settings = () => {
     const { user } = useAuth();
@@ -11,24 +11,6 @@ const Settings = () => {
     const [emergencyEmails, setEmergencyEmails] = useState([]);
     const [emailInput, setEmailInput] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const handleEmailInputKeyDown = (e) => {
-        if (e.key === 'Enter' || e.key === 'Tab') {
-            e.preventDefault();
-            const newEmail = emailInput.trim();
-
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (newEmail && emailRegex.test(newEmail) && !emergencyEmails.includes(newEmail)) {
-                setEmergencyEmails([...emergencyEmails, newEmail]);
-                setEmailInput('');
-            }
-        }
-    };
-
-    const removeEmail = (emailToRemove) => {
-        setEmergencyEmails(emergencyEmails.filter(email => email !== emailToRemove));
-    };
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -49,13 +31,41 @@ const Settings = () => {
         fetchSettings();
     }, [user]);
 
+    const handleEmailInputKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            const newEmail = emailInput.trim();
+
+            if (newEmail) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(newEmail)) {
+                    toast.error("Por favor, introduce un email válido.");
+                    return;
+                }
+                if (emergencyEmails.includes(newEmail)) {
+                    toast.error("Este email ya ha sido añadido.");
+                    return;
+                }
+                setEmergencyEmails([...emergencyEmails, newEmail]);
+                toast.success(`¡Email ${newEmail} añadido!`);
+                setEmailInput('');
+            }
+        }
+    };
+
+    const removeEmail = (emailToRemove) => {
+        setEmergencyEmails(emergencyEmails.filter(email => email !== emailToRemove));
+        toast.success(`Email ${emailToRemove} eliminado.`);
+    };
+
     const handleSaveSettings = async () => {
         if (!user) {
-            alert("Por favor, inicie sesión para guardar la configuración.");
+            toast.error("Por favor, inicie sesión para guardar la configuración.");
             return;
         }
 
         setLoading(true);
+        const toastId = toast.loading('Guardando configuración...');
         try {
             const settingsDocRef = doc(db, 'user_settings', user.id);
             await setDoc(settingsDocRef, {
@@ -65,11 +75,11 @@ const Settings = () => {
                 active: true
             }, { merge: true });
 
-            alert("¡Configuración guardada con éxito!");
+            toast.success("¡Configuración guardada con éxito!", { id: toastId });
 
         } catch (error) {
             console.error("Error saving settings: ", error);
-            alert("Hubo un error al guardar la configuración.");
+            toast.error("Hubo un error al guardar la configuración.", { id: toastId });
         } finally {
             setLoading(false);
         }
