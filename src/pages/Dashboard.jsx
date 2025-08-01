@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Heart, FileText, Key, Server, LogOut, Sun, Moon } from 'lucide-react';
 import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
@@ -13,6 +13,20 @@ const Dashboard = () => {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('documents');
     const { isDarkMode, toggleTheme } = useTheme();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [menuRef]);
 
     return (
     <>
@@ -26,21 +40,36 @@ const Dashboard = () => {
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <button onClick={toggleTheme} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
-                        {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-                    </button>
                     <div className="text-right">
                         <p className="text-sm font-medium text-gray-800 dark:text-white">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                     </div>
-                    <img
-                        src={user?.avatar}
-                        alt="Avatar"
-                        className="w-10 h-10 rounded-full"
-                    />
-                    <button onClick={logout} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
-                        <LogOut className="w-6 h-6 cursor-pointer" />
-                    </button>
+                    <div className="relative" ref={menuRef}>
+                        <img
+                            src={user?.avatar}
+                            alt="Avatar"
+                            className="w-10 h-10 rounded-full cursor-pointer"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        />
+                        {isMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                                <button
+                                    onClick={toggleTheme}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                                >
+                                    {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                                    {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                                </button>
+                                <button
+                                    onClick={logout}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                                >
+                                    <LogOut className="w-4 h-4 mr-2" />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             </div>
@@ -64,10 +93,10 @@ const Dashboard = () => {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
                 
                 {/* Tabs */}
-                <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1 mb-6">
+                <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1 mb-6 overflow-x-auto">
                     <button
                     onClick={() => setActiveTab('documents')}
-                    className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg transition-all ${
+                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'documents' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -78,7 +107,7 @@ const Dashboard = () => {
                     </button>
                     <button
                     onClick={() => setActiveTab('credentials')}
-                    className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg transition-all ${
+                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'credentials' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -89,7 +118,7 @@ const Dashboard = () => {
                     </button>
                     <button
                     onClick={() => setActiveTab('servers')}
-                    className={`flex-1 flex items-center justify-center py-2 px-4 rounded-lg transition-all ${
+                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'servers' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
