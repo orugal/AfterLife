@@ -36,8 +36,8 @@ const Dashboard = () => {
             <div className="max-w-6xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                <Heart className="w-8 h-8 text-red-500" />
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">After Life</h1>
+                <Heart className="w-6 h-6 text-red-500 fill-red-500" />
+                <h1 className="text-1xl font-bold text-gray-800 dark:text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
                     <div className="text-right">
@@ -52,7 +52,7 @@ const Dashboard = () => {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         />
                         {isMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                            <div className="absolute right-0 mt-2 w-48 bg-gray-100 dark:bg-gray-600 rounded-md shadow-lg py-1 z-10">
                                 <button
                                     onClick={toggleTheme}
                                     className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
