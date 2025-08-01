@@ -87,7 +87,7 @@ const LifeStatus = () => {
             <div className="text-center">
                 <button
                     onClick={handleAliveCheck}
-                    disabled={loading}
+                    disabled={loading || hasCheckedInToday}
                     className={`w-full bg-gradient-to-r ${
                         hasCheckedInToday
                             ? 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
