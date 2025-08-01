@@ -58,6 +58,18 @@ const Settings = () => {
         toast.success(`Email ${emailToRemove} eliminado.`);
     };
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (user) {
+                handleSaveSettings();
+            }
+        }, 1500); // 1.5 seconds debounce
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [notificationDays, emergencyEmails, user]);
+
     const handleSaveSettings = async () => {
         if (!user) {
             toast.error("Por favor, inicie sesión para guardar la configuración.");
@@ -75,7 +87,7 @@ const Settings = () => {
                 active: true
             }, { merge: true });
 
-            toast.success("¡Configuración guardada con éxito!", { id: toastId });
+            toast.success("¡Configuración guardada automáticamente!", { id: toastId });
 
         } catch (error) {
             console.error("Error saving settings: ", error);
@@ -134,13 +146,6 @@ const Settings = () => {
                         />
                     </div>
                     
-                    <button
-                        onClick={handleSaveSettings}
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        disabled={loading}
-                    >
-                        {loading ? 'Guardando...' : 'Guardar Configuración'}
-                    </button>
                 </div>
             </div>
         </>
