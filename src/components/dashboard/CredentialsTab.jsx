@@ -413,7 +413,10 @@ const CredentialsTab = () => {
 
             {/* View Credential Modal */}
             {isViewModalOpen && selectedCredential && (
-                <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+                <div className="fixed inset-0 bg-black/60 bg-opacity-60 flex justify-center items-center z-50" style={{ 
+                     backdropFilter: 'blur(2px)',
+                    WebkitBackdropFilter: 'blur(2px)' // Para Safari
+                    }}>
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-lg relative">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{selectedCredential.service_name}</h3>
                         <div className="space-y-4 text-left">
@@ -471,7 +474,10 @@ const CredentialsTab = () => {
 
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                <div className="fixed inset-0 bg-black/60 bg-opacity-70 flex justify-center items-center z-50" style={{ 
+                     backdropFilter: 'blur(2px)',
+                    WebkitBackdropFilter: 'blur(2px)' // Para Safari
+                    }}>
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white">¿Estás seguro?</h3>
                         <p className="text-gray-600 dark:text-gray-300 my-4">Esta acción no se puede deshacer. Se eliminará la credencial para siempre.</p>

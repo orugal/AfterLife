@@ -298,7 +298,7 @@ const DocumentsTab = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFile(null)}
-                                        className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"
+                                        className="cursor-pointer mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"
                                     >
                                         Cambiar archivo
                                     </button>
@@ -334,7 +334,7 @@ const DocumentsTab = () => {
                                         <button
                                             type="button"
                                             onClick={() => removeTag(tag)}
-                                            className="ml-1.5 flex-shrink-0 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 focus:outline-none"
+                                            className="cursor-pointer ml-1.5 flex-shrink-0 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 focus:outline-none"
                                         >
                                             <X className="h-3.5 w-3.5" />
                                         </button>
@@ -377,7 +377,7 @@ const DocumentsTab = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed"
+                            className="cursor-pointer  inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 dark:disabled:bg-blue-800 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? (
                                 <>
@@ -457,10 +457,10 @@ const DocumentsTab = () => {
                                         </div>
                                     </a>
                                     <div className="flex items-center space-x-2 flex-shrink-0 ml-4">
-                                        <button onClick={() => handleViewDetails(doc)} className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        <button onClick={() => handleViewDetails(doc)} className="cursor-pointer  p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
                                             <Eye className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => handleDelete(doc)} className="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        <button onClick={() => handleDelete(doc)} className="cursor-pointer  p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -567,10 +567,10 @@ const DocumentsTab = () => {
                          <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 rounded-b-2xl">
                             {isEditMode ? (
                                 <>
-                                    <button onClick={() => setIsEditMode(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">
+                                    <button onClick={() => setIsEditMode(false)} className="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">
                                         Cancelar
                                     </button>
-                                    <button onClick={handleUpdate} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700">
+                                    <button onClick={handleUpdate} className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700">
                                         Guardar Cambios
                                     </button>
                                 </>
@@ -579,7 +579,7 @@ const DocumentsTab = () => {
                                     <button onClick={() => setIsEditMode(true)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">
                                         Editar
                                     </button>
-                                    <button onClick={() => handleDelete(selectedDoc)} className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700">
+                                    <button onClick={() => handleDelete(selectedDoc)} className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700">
                                         Eliminar
                                     </button>
                                 </>
@@ -591,15 +591,18 @@ const DocumentsTab = () => {
 
             {/* Delete Confirmation Modal */}
             {isConfirmModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                <div className="fixed inset-0 bg-black/60 bg-opacity-70 flex justify-center items-center z-50"style={{ 
+                     backdropFilter: 'blur(2px)',
+                    WebkitBackdropFilter: 'blur(2px)' // Para Safari
+                    }}>
                     <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white">¿Estás seguro?</h3>
                         <p className="text-gray-600 dark:text-gray-300 my-4">
                             Se eliminará el documento <span className="font-semibold">{docToDelete?.filename}</span>. <br/>Esta acción no se puede deshacer.
                         </p>
                         <div className="flex justify-center space-x-4 mt-6">
-                            <button onClick={() => setIsConfirmModalOpen(false)} className="px-8 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">Cancelar</button>
-                            <button onClick={executeDelete} className="px-8 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700">Sí, eliminar</button>
+                            <button onClick={() => setIsConfirmModalOpen(false)} className="cursor-pointer  px-8 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">Cancelar</button>
+                            <button onClick={executeDelete} className="cursor-pointer px-8 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700">Sí, eliminar</button>
                         </div>
                     </div>
                 </div>
