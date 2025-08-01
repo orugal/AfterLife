@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Confetti from 'react-confetti';
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase/config";
 import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, onSnapshot } from "firebase/firestore";
@@ -9,6 +10,16 @@ const LifeStatus = () => {
     const [lastCheck, setLastCheck] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+
+    useEffect(() => {
+        if (showConfetti) {
+            const timer = setTimeout(() => {
+                setShowConfetti(false);
+            }, 5000); // 5 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [showConfetti]);
 
     useEffect(() => {
         if (!user) {
@@ -70,6 +81,8 @@ const LifeStatus = () => {
                 status: 'sent'
             });
 
+            setShowConfetti(true);
+
         } catch (error) {
             console.error("Error performing alive check: ", error);
         } finally {
@@ -79,6 +92,7 @@ const LifeStatus = () => {
 
     return (
         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            {showConfetti && <Confetti />}
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
                 <Heart className="w-6 h-6 text-red-500 mr-2" />
                 Estado de Vida
