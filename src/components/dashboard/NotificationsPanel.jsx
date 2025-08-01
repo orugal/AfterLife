@@ -42,17 +42,17 @@ const NotificationsPanel = () => {
     };
 
     return (
-        <div className="mt-8 bg-white rounded-2xl shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h3>
+        <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actividad Reciente</h3>
             <div className="space-y-2">
                 {notifications.length > 0 ? (
                     notifications.map((notification) => (
-                        <div key={notification.id} className="p-3 bg-green-50 rounded-lg text-sm text-green-700">
+                        <div key={notification.id} className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg text-sm text-green-700 dark:text-green-300">
                             {formatNotification(notification)}
                         </div>
                     ))
                 ) : (
-                    <p className="text-sm text-gray-500">No hay actividad reciente.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No hay actividad reciente.</p>
                 )}
             </div>
         </div>

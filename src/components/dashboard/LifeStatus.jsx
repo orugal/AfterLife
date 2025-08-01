@@ -91,9 +91,9 @@ const LifeStatus = () => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
             {showConfetti && <Confetti />}
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
                 <Heart className="w-6 h-6 text-red-500 mr-2" />
                 Estado de Vida
             </h2>
@@ -113,8 +113,8 @@ const LifeStatus = () => {
                 </button>
 
                 {lastCheck && (
-                    <div className="mt-4 p-4 bg-green-50 rounded-xl">
-                        <p className="text-sm text-green-700">
+                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                        <p className="text-sm text-green-700 dark:text-green-300">
                             <Clock className="w-4 h-4 inline mr-1" />
                             Último check-in: {lastCheck.toDate().toLocaleString()}
                         </p>
