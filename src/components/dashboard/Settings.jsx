@@ -63,7 +63,7 @@ const Settings = () => {
             if (user) {
                 handleSaveSettings();
             }
-        }, 1500); // 1.5 seconds debounce
+        }, 1000); // 1.5 seconds debounce
 
         return () => {
             clearTimeout(handler);
