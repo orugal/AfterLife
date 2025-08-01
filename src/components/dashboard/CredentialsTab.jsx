@@ -87,9 +87,13 @@ const CredentialsTab = () => {
         if (!user) return;
         setLoading(true);
         try {
-            const q = query(collection(db, "credentials"), where("user_id", "==", user.id), orderBy("service_name"));
+            const q = query(collection(db, "credentials"), where("user_id", "==", user.id));
             const querySnapshot = await getDocs(q);
-            const creds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            let creds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Sort on the client-side
+            creds.sort((a, b) => a.service_name.localeCompare(b.service_name));
+
             setCredentials(creds);
         } catch (error) {
             console.error("Error fetching credentials: ", error);
