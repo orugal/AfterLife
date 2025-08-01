@@ -55,14 +55,14 @@ const Dashboard = () => {
                             <div className="absolute right-0 mt-2 w-48 bg-gray-100 dark:bg-gray-600 rounded-md shadow-lg py-1 z-10">
                                 <button
                                     onClick={toggleTheme}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                                    className="cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
                                 >
                                     {isDarkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
                                     {isDarkMode ? 'Light Mode' : 'Dark Mode'}
                                 </button>
                                 <button
                                     onClick={logout}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                                    className="cursor-pointer w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
                                 >
                                     <LogOut className="w-4 h-4 mr-2" />
                                     Logout
@@ -96,7 +96,7 @@ const Dashboard = () => {
                 <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1 mb-6 overflow-x-auto">
                     <button
                     onClick={() => setActiveTab('documents')}
-                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'documents' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -107,7 +107,7 @@ const Dashboard = () => {
                     </button>
                     <button
                     onClick={() => setActiveTab('credentials')}
-                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'credentials' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
@@ -118,7 +118,7 @@ const Dashboard = () => {
                     </button>
                     <button
                     onClick={() => setActiveTab('servers')}
-                    className={`flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'servers' 
                         ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
                         : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
