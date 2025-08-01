@@ -9,9 +9,11 @@ const NotificationsPanel = () => {
 
     useEffect(() => {
         if (!user) {
+            console.log("NotificationsPanel: No user found.");
             setNotifications([]);
             return;
         }
+        console.log("NotificationsPanel: User found", user);
 
         const q = query(
             collection(db, "notifications_sent"),
@@ -21,10 +23,12 @@ const NotificationsPanel = () => {
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            console.log("NotificationsPanel: Snapshot received", querySnapshot);
             const notifs = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+            console.log("NotificationsPanel: Notifications found", notifs);
             setNotifications(notifs);
         });
 
