@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -11,6 +11,7 @@ const Settings = () => {
     const [emergencyEmails, setEmergencyEmails] = useState([]);
     const [emailInput, setEmailInput] = useState('');
     const [loading, setLoading] = useState(false);
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -59,11 +60,16 @@ const Settings = () => {
     };
 
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
         const handler = setTimeout(() => {
             if (user) {
                 handleSaveSettings();
             }
-        }, 1000); // 1.5 seconds debounce
+        }, 1500); // 1.5 seconds debounce
 
         return () => {
             clearTimeout(handler);
