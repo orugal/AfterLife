@@ -6,7 +6,11 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        breathing: 'breathing 3s ease-in-out infinite',
+      },
+    },
   },
   plugins: [],
 }
