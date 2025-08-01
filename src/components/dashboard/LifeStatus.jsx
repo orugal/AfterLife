@@ -11,11 +11,8 @@ const LifeStatus = () => {
 
     useEffect(() => {
         if (!user) {
-            console.log("LifeStatus: No user found.");
             return;
         }
-        console.log("LifeStatus: User found", user);
-
         const q = query(
             collection(db, "alive_checks"),
             where("user_id", "==", user.id),
@@ -24,13 +21,10 @@ const LifeStatus = () => {
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            console.log("LifeStatus: Snapshot received", querySnapshot);
             if (!querySnapshot.empty) {
                 const doc = querySnapshot.docs[0];
-                console.log("LifeStatus: Last check-in found", doc.data());
                 setLastCheck(doc.data().timestamp);
             } else {
-                console.log("LifeStatus: No check-ins found for this user.");
                 setLastCheck(null);
             }
         });
