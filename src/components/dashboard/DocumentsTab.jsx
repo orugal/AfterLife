@@ -26,6 +26,8 @@ const DocumentsTab = () => {
     const [editedNotes, setEditedNotes] = useState('');
     const [editedTags, setEditedTags] = useState([]);
     const [editedCurrentTag, setEditedCurrentTag] = useState('');
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [docToDelete, setDocToDelete] = useState(null);
 
     const handleViewDetails = (doc) => {
         setSelectedDoc(doc);
@@ -137,15 +139,23 @@ const DocumentsTab = () => {
         setEditedTags(editedTags.filter(tag => tag !== tagToRemove));
     };
 
-    const handleDelete = async (docToDelete) => {
-        if (!window.confirm(`¿Estás seguro de que quieres eliminar "${docToDelete.filename}"? Esta acción no se puede deshacer.`)) {
-            return;
+    const handleDelete = (doc) => {
+        setDocToDelete(doc);
+        setIsConfirmModalOpen(true);
+        // If the main modal is open, close it to avoid overlap
+        if (isModalOpen) {
+            setIsModalOpen(false);
         }
+    };
+
+    const executeDelete = async () => {
+        if (!docToDelete) return;
 
         const toastId = toast.loading('Eliminando documento...');
         try {
             // Delete file from Storage
-            // Extract the path from the URL. This is brittle and depends on the URL format.
+            // This logic to extract path from URL is brittle. A better approach
+            // would be to store the storage path in Firestore alongside the download URL.
             const url = new URL(docToDelete.file_path);
             const path = decodeURIComponent(url.pathname.split('/o/')[1]);
             const fileRef = ref(storage, path);
@@ -155,10 +165,12 @@ const DocumentsTab = () => {
             await deleteDoc(doc(db, 'documents', docToDelete.id));
 
             toast.success('Documento eliminado con éxito.', { id: toastId });
-            closeModal();
         } catch (error) {
             console.error("Error al eliminar el documento: ", error);
             toast.error('No se pudo eliminar el documento.', { id: toastId });
+        } finally {
+            setIsConfirmModalOpen(false);
+            setDocToDelete(null);
         }
     };
 
@@ -569,6 +581,22 @@ const DocumentsTab = () => {
                                     </button>
                                 </>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isConfirmModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">¿Estás seguro?</h3>
+                        <p className="text-gray-600 dark:text-gray-300 my-4">
+                            Se eliminará el documento <span className="font-semibold">{docToDelete?.filename}</span>. <br/>Esta acción no se puede deshacer.
+                        </p>
+                        <div className="flex justify-center space-x-4 mt-6">
+                            <button onClick={() => setIsConfirmModalOpen(false)} className="px-8 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">Cancelar</button>
+                            <button onClick={executeDelete} className="px-8 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700">Sí, eliminar</button>
                         </div>
                     </div>
                 </div>
