@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
-import { collection, addDoc, getDocs, query, where, deleteDoc, doc } from 'firebase/firestore';
-import { Key, Eye, EyeOff, Trash2, Tag, Search, PlusCircle } from 'lucide-react';
+import { collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { Key, Eye, EyeOff, Trash2, Tag, Search, PlusCircle, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CredentialsTab = () => {
@@ -26,9 +26,14 @@ const CredentialsTab = () => {
     const [selectedTag, setSelectedTag] = useState('');
     const [filteredCredentials, setFilteredCredentials] = useState([]);
     const [selectedCredential, setSelectedCredential] = useState(null);
+    const [editingCredentialId, setEditingCredentialId] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
 
     // WARNING: This is a simple XOR cipher for demonstration purposes only.
     // It is NOT secure. In a production environment, use a strong, well-vetted
@@ -82,7 +87,7 @@ const CredentialsTab = () => {
         if (!user) return;
         setLoading(true);
         try {
-            const q = query(collection(db, "credentials"), where("user_id", "==", user.id));
+            const q = query(collection(db, "credentials"), where("user_id", "==", user.id), orderBy("service_name"));
             const querySnapshot = await getDocs(q);
             const creds = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setCredentials(creds);
@@ -105,7 +110,7 @@ const CredentialsTab = () => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSaveOrUpdate = async () => {
         if (!serviceName || !username || !password) {
             toast.error("Servicio, usuario y contraseña son obligatorios.");
             return;
@@ -124,27 +129,36 @@ const CredentialsTab = () => {
                         tag: tag,
                     });
                 }
-                // Refresh all tags list
                 fetchAllTags();
             }
 
-            await addDoc(collection(db, 'credentials'), {
+            const credentialData = {
                 user_id: user.id,
                 service_name: serviceName,
                 username: username,
                 password_encrypted: passwordEncrypted,
                 notes: notes,
                 tags: tagArray
-            });
+            };
 
-            toast.success("¡Credencial guardada con éxito!");
-            // Clear form
+            if (editingCredentialId) {
+                // Update existing credential
+                const credRef = doc(db, "credentials", editingCredentialId);
+                await updateDoc(credRef, credentialData);
+                toast.success("¡Credencial actualizada con éxito!");
+                setEditingCredentialId(null);
+            } else {
+                // Add new credential
+                await addDoc(collection(db, 'credentials'), credentialData);
+                toast.success("¡Credencial guardada con éxito!");
+            }
+
+            // Clear form and refresh list
             setServiceName('');
             setUsername('');
             setPassword('');
             setNotes('');
             setTags('');
-            // Refresh credentials list
             fetchCredentials();
         } catch (error) {
             console.error("Error saving credential: ", error);
@@ -171,7 +185,17 @@ const CredentialsTab = () => {
         }
 
         setFilteredCredentials(filtered);
+        setCurrentPage(1); // Reset to first page on filter change
     }, [searchTerm, selectedTag, credentials]);
+
+    const paginatedCredentials = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        return filteredCredentials.slice(startIndex, endIndex);
+    }, [filteredCredentials, currentPage]);
+
+    const totalPages = Math.ceil(filteredCredentials.length / ITEMS_PER_PAGE);
+
 
     const handleView = (cred) => {
         setSelectedCredential(cred);
@@ -194,14 +218,38 @@ const CredentialsTab = () => {
         }
     };
 
+    const handleEdit = () => {
+        if (!selectedCredential) return;
+
+        setEditingCredentialId(selectedCredential.id);
+        setServiceName(selectedCredential.service_name);
+        setUsername(selectedCredential.username);
+        setPassword(decryptPassword(selectedCredential.password_encrypted));
+        setNotes(selectedCredential.notes || '');
+        setTags(selectedCredential.tags ? selectedCredential.tags.join(', ') : '');
+
+        setIsViewModalOpen(false);
+        // Scroll to top to see the form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setEditingCredentialId(null);
+        setServiceName('');
+        setUsername('');
+        setPassword('');
+        setNotes('');
+        setTags('');
+    };
+
     return (
         <>
             <div className="space-y-8">
                 {/* Form Section */}
                 <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <PlusCircle className="w-8 h-8 mr-3 text-green-500" />
-                        Agregar Nueva Credencial
+                        {editingCredentialId ? <Pencil className="w-8 h-8 mr-3 text-blue-500" /> : <PlusCircle className="w-8 h-8 mr-3 text-green-500" />}
+                        {editingCredentialId ? 'Editando Credencial' : 'Agregar Nueva Credencial'}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -227,7 +275,7 @@ const CredentialsTab = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
                             <input
-                                type="password"
+                                type="text"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
@@ -256,12 +304,22 @@ const CredentialsTab = () => {
                             ></textarea>
                         </div>
                     </div>
-                    <button
-                        onClick={handleSave}
-                        className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center font-semibold"
-                    >
-                        Guardar Credencial
-                    </button>
+                    <div className="mt-6 space-y-2">
+                        <button
+                            onClick={handleSaveOrUpdate}
+                            className={`w-full text-white py-3 rounded-lg transition-colors flex items-center justify-center font-semibold ${editingCredentialId ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}
+                        >
+                            {editingCredentialId ? 'Actualizar Credencial' : 'Guardar Credencial'}
+                        </button>
+                        {editingCredentialId && (
+                            <button
+                                onClick={cancelEdit}
+                                className="w-full bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-white py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors flex items-center justify-center font-semibold"
+                            >
+                                Cancelar Edición
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Saved Credentials Section */}
@@ -296,32 +354,55 @@ const CredentialsTab = () => {
 
                     {loading ? (
                         <p className="text-center text-gray-500 dark:text-gray-400">Cargando credenciales...</p>
-                    ) : filteredCredentials.length === 0 ? (
+                    ) : paginatedCredentials.length === 0 ? (
                         <p className="text-center text-gray-500 dark:text-gray-400">No se encontraron credenciales con los filtros actuales.</p>
                     ) : (
-                        <div className="space-y-3">
-                            {filteredCredentials.map((cred) => (
-                                <div
-                                    key={cred.id}
-                                    onClick={() => handleView(cred)}
-                                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
-                                >
-                                    <div className="flex items-center">
-                                        <Key className="w-6 h-6 text-yellow-500 mr-4" />
-                                        <div>
-                                            <span className="text-lg font-semibold text-gray-900 dark:text-white">{cred.service_name}</span>
-                                            {cred.tags && cred.tags.length > 0 && (
-                                                <div className="flex items-center mt-1 space-x-2">
-                                                    <Tag className="w-4 h-4 text-gray-400" />
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">{cred.tags.join(', ')}</span>
-                                                </div>
-                                            )}
+                        <>
+                            <div className="space-y-3">
+                                {paginatedCredentials.map((cred) => (
+                                    <div
+                                        key={cred.id}
+                                        onClick={() => handleView(cred)}
+                                        className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                                    >
+                                        <div className="flex items-center">
+                                            <Key className="w-6 h-6 text-yellow-500 mr-4" />
+                                            <div>
+                                                <span className="text-lg font-semibold text-gray-900 dark:text-white">{cred.service_name}</span>
+                                                {cred.tags && cred.tags.length > 0 && (
+                                                    <div className="flex items-center mt-1 space-x-2">
+                                                        <Tag className="w-4 h-4 text-gray-400" />
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">{cred.tags.join(', ')}</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+                                        <span className="font-mono text-sm text-gray-500 dark:text-gray-400 tracking-widest">••••••••</span>
                                     </div>
-                                    <span className="font-mono text-sm text-gray-500 dark:text-gray-400 tracking-widest">••••••••</span>
+                                ))}
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="mt-6 flex justify-center items-center space-x-4">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Anterior
+                                    </button>
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                        Página {currentPage} de {totalPages}
+                                    </span>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Siguiente
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
@@ -368,7 +449,14 @@ const CredentialsTab = () => {
                         </div>
                         <div className="mt-6 flex justify-end space-x-4">
                             <button onClick={() => { setIsViewModalOpen(false); setPasswordVisible(false); }} className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">Cerrar</button>
-                            <button onClick={() => setIsDeleteModalOpen(true)} className="px-6 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 flex items-center">
+                            <button onClick={handleEdit} className="px-6 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 flex items-center">
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Editar
+                            </button>
+                            <button onClick={() => {
+                                setIsViewModalOpen(false);
+                                setIsDeleteModalOpen(true);
+                            }} className="px-6 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 flex items-center">
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Eliminar
                             </button>
