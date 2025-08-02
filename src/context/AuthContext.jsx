@@ -8,6 +8,7 @@ import {
     onAuthStateChanged
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { getFCMToken } from "../firebase/messaging";
 
 const AuthContext = createContext();
 
@@ -40,6 +41,7 @@ export const AuthProvider = ({ children }) => {
 
         const userDocRef = doc(db, "users", firebaseUser.uid);
         const userDocSnap = await getDoc(userDocRef);
+        const fcmToken = await getFCMToken();
 
         if (!userDocSnap.exists()) {
             // New user, create document
@@ -51,7 +53,8 @@ export const AuthProvider = ({ children }) => {
                 name: firebaseUser.displayName,
                 avatar: firebaseUser.photoURL,
                 created_at: serverTimestamp(),
-                last_alive_check: serverTimestamp()
+                last_alive_check: serverTimestamp(),
+                fcmToken: fcmToken,
             };
             await setDoc(userDocRef, newUser);
             setUser(newUser);
@@ -59,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         } else {
             // Existing user, just update last check-in and log in
             const userData = userDocSnap.data();
-            await setDoc(userDocRef, { ...userData, last_alive_check: serverTimestamp() }, { merge: true });
+            await setDoc(userDocRef, { ...userData, last_alive_check: serverTimestamp(), fcmToken: fcmToken }, { merge: true });
             setUser(userData);
             localStorage.setItem("user", JSON.stringify(userData));
         }
