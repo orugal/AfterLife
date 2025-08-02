@@ -11,8 +11,8 @@ const ServersTab = () => {
     // Form State
     const [name, setName] = useState('');
     const [ipDomain, setIpDomain] = useState('');
-    const [sshPort, setSshPort] = useState('22');
-    const [sshUser, setSshUser] = useState('root');
+    const [sshPort, setSshPort] = useState('');
+    const [sshUser, setSshUser] = useState('');
     const [instructions, setInstructions] = useState('');
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
@@ -51,8 +51,8 @@ const ServersTab = () => {
     const resetForm = () => {
         setName('');
         setIpDomain('');
-        setSshPort('22');
-        setSshUser('root');
+        setSshPort('');
+        setSshUser('');
         setInstructions('');
         setTags([]);
         setCurrentTag('');
