@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { Toaster } from 'react-hot-toast'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import NotificationManager from './components/NotificationManager.jsx'
 
 const rootElement = document.getElementById('root')
 
@@ -16,6 +17,7 @@ createRoot(rootElement).render(
     <AuthProvider>
       <ThemeProvider>
         <BrowserRouter>
+          <NotificationManager />
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={
