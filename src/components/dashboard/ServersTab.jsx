@@ -192,6 +192,11 @@ const ServersTab = () => {
     const handleUpdate = async () => {
         if (!selectedServer) return;
 
+        if (!editedName || !editedIpDomain) {
+            toast.error('Por favor, completa el nombre y la IP/Dominio.');
+            return;
+        }
+
         const toastId = toast.loading('Actualizando servidor...');
         try {
             const docRef = doc(db, 'servers', selectedServer.id);
@@ -273,7 +278,6 @@ const ServersTab = () => {
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="ej. Servidor Principal, VPS-01"
                                 className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                                required
                             />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -285,7 +289,6 @@ const ServersTab = () => {
                                     onChange={(e) => setIpDomain(e.target.value)}
                                     placeholder="192.168.1.100"
                                     className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                                    required
                                 />
                             </div>
                             <div>
