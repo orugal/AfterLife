@@ -112,6 +112,8 @@ const Dashboard = () => {
 
                 {/* Configuración de Notificaciones */}
                 <Settings />
+                {/* Notificaciones */}
+                <NotificationsPanel />
 
             </div>
 
@@ -184,8 +186,7 @@ const Dashboard = () => {
             </div>
             </div>
 
-            {/* Notificaciones */}
-            <NotificationsPanel />
+            
         </div>
         </div>
         <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} onResultClick={handleSearchResultClick} />
