@@ -9,12 +9,16 @@ import LifeStatus from "../components/dashboard/LifeStatus";
 import NotificationsPanel from "../components/dashboard/NotificationsPanel";
 import Settings from "../components/dashboard/Settings";
 import { useTheme } from "../context/ThemeContext";
+import SearchButton from "../components/dashboard/SearchButton";
+import SearchModal from "../components/dashboard/SearchModal";
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('documents');
     const { isDarkMode, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -29,6 +33,27 @@ const Dashboard = () => {
         };
     }, [menuRef]);
 
+    const handleSearchResultClick = (item, type) => {
+        setSelectedItem({ ...item, type });
+        // Switch to the relevant tab
+        switch(type) {
+            case 'document':
+                setActiveTab('documents');
+                break;
+            case 'credential':
+                setActiveTab('credentials');
+                break;
+            case 'server':
+                setActiveTab('servers');
+                break;
+            case 'suscription':
+                setActiveTab('suscriptions');
+                break;
+            default:
+                break;
+        }
+    };
+
     return (
     <>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -41,6 +66,7 @@ const Dashboard = () => {
                 <h1 className="text-1xl font-bold text-gray-800 dark:text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
+                    <SearchButton onClick={() => setIsSearchModalOpen(true)} />
                     <div className="text-right">
                         <p className="text-sm font-medium text-gray-800 dark:text-white">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
@@ -143,16 +169,16 @@ const Dashboard = () => {
 
                 {/* Contenido de Tabs */}
                 {activeTab === 'documents' && (
-                    <DocumentsTab />
+                    <DocumentsTab selectedItem={selectedItem?.type === 'document' ? selectedItem : null} />
                 )}
                 {activeTab === 'credentials' && (
-                    <CredentialsTab />
+                    <CredentialsTab selectedItem={selectedItem?.type === 'credential' ? selectedItem : null} />
                 )}
                 {activeTab === 'servers' && (
-                    <ServersTab />
+                    <ServersTab selectedItem={selectedItem?.type === 'server' ? selectedItem : null} />
                 )}
                 {activeTab === 'suscriptions' && (
-                    <SuscriptionsTab />
+                    <SuscriptionsTab selectedItem={selectedItem?.type === 'suscription' ? selectedItem : null} />
                 )}
                 </div>
             </div>
@@ -162,6 +188,7 @@ const Dashboard = () => {
             <NotificationsPanel />
         </div>
         </div>
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} onResultClick={handleSearchResultClick} />
     </>
     )
    

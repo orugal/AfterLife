@@ -6,7 +6,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
-const DocumentsTab = () => {
+const DocumentsTab = ({ selectedItem }) => {
     const { user } = useAuth();
     const [file, setFile] = useState(null);
     const [tags, setTags] = useState([]);
@@ -78,6 +78,12 @@ const DocumentsTab = () => {
         // Cleanup subscription on unmount
         return () => unsubscribe();
     }, [user]);
+
+    useEffect(() => {
+        if (selectedItem) {
+            handleViewDetails(selectedItem);
+        }
+    }, [selectedItem]);
 
     // Filtering and Pagination Logic
     const filteredDocuments = documents

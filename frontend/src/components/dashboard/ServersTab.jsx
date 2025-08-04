@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-const ServersTab = () => {
+const ServersTab = ({ selectedItem }) => {
     const { user } = useAuth();
 
     // Form State
@@ -151,6 +151,12 @@ const ServersTab = () => {
 
         return () => unsubscribe();
     }, [user]);
+
+    useEffect(() => {
+        if (selectedItem) {
+            handleViewDetails(selectedItem);
+        }
+    }, [selectedItem]);
 
     // Filtering and Pagination Logic
     const filteredServers = servers
