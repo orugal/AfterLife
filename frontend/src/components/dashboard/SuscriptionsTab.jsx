@@ -5,6 +5,34 @@ import { db } from '../../firebase/config';
 import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
+const getDaysUntilNextRenewal = (subscriptionDate) => {
+    if (!subscriptionDate) return { text: 'Fecha no especificada', days: Infinity };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [year, month, day] = subscriptionDate.split('-').map(Number);
+
+    let nextRenewalDate = new Date(today.getFullYear(), month - 1, day);
+    nextRenewalDate.setHours(0,0,0,0);
+
+    if (nextRenewalDate < today) {
+        nextRenewalDate.setFullYear(today.getFullYear() + 1);
+    }
+
+    const diffTime = nextRenewalDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+        return { text: 'Vence hoy', days: 0 };
+    } else if (diffDays === 1) {
+        return { text: 'Vence mañana', days: 1 };
+    } else {
+        return { text: `Vence en ${diffDays} días`, days: diffDays };
+    }
+};
+
+
 const SuscriptionsTab = () => {
     const { user } = useAuth();
 
@@ -12,6 +40,7 @@ const SuscriptionsTab = () => {
     const [serviceName, setServiceName] = useState('');
     const [subscriptionDate, setSubscriptionDate] = useState('');
     const [subscriptionTime, setSubscriptionTime] = useState('mensual');
+    const [notes, setNotes] = useState('');
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
 
@@ -40,6 +69,7 @@ const SuscriptionsTab = () => {
     const [editedServiceName, setEditedServiceName] = useState('');
     const [editedSubscriptionDate, setEditedSubscriptionDate] = useState('');
     const [editedSubscriptionTime, setEditedSubscriptionTime] = useState('');
+    const [editedNotes, setEditedNotes] = useState('');
     const [editedTags, setEditedTags] = useState([]);
     const [editedCurrentTag, setEditedCurrentTag] = useState('');
 
@@ -48,6 +78,7 @@ const SuscriptionsTab = () => {
         setServiceName('');
         setSubscriptionDate('');
         setSubscriptionTime('mensual');
+        setNotes('');
         setTags([]);
         setCurrentTag('');
     };
@@ -87,6 +118,7 @@ const SuscriptionsTab = () => {
                 service_name: serviceName,
                 subscription_date: subscriptionDate,
                 subscription_time: subscriptionTime,
+                notes,
                 tags,
                 created_at: serverTimestamp()
             };
@@ -168,6 +200,7 @@ const SuscriptionsTab = () => {
         setEditedServiceName(suscription.service_name);
         setEditedSubscriptionDate(suscription.subscription_date);
         setEditedSubscriptionTime(suscription.subscription_time);
+        setEditedNotes(suscription.notes || '');
         setEditedTags(suscription.tags || []);
         setIsModalOpen(true);
         setIsEditMode(false);
@@ -194,6 +227,7 @@ const SuscriptionsTab = () => {
                 service_name: editedServiceName,
                 subscription_date: editedSubscriptionDate,
                 subscription_time: editedSubscriptionTime,
+                notes: editedNotes,
                 tags: editedTags
             });
 
@@ -321,6 +355,15 @@ const SuscriptionsTab = () => {
                                 </div>
                             </div>
                              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Escribe un tag y presiona "Enter" para añadirlo.</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas Adicionales</label>
+                            <textarea
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="Añade cualquier nota relevante aquí..."
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg h-24 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                            ></textarea>
                         </div>
                         <div className="flex justify-end">
                             <button
@@ -501,6 +544,15 @@ const SuscriptionsTab = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notas Adicionales</label>
+                                    <textarea
+                                        value={editedNotes}
+                                        onChange={(e) => setEditedNotes(e.target.value)}
+                                        rows={4}
+                                        className="w-full p-3 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                    ></textarea>
+                                </div>
                             </>
                            ) : (
                             <>
@@ -508,7 +560,11 @@ const SuscriptionsTab = () => {
                                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre del Servicio</h4>
                                     <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{selectedSuscription.service_name}</p>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Próxima Renovación</h4>
+                                        <p className="mt-1 text-gray-700 dark:text-gray-300">{getDaysUntilNextRenewal(selectedSuscription.subscription_date).text}</p>
+                                    </div>
                                     <div>
                                         <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Suscripción</h4>
                                         <p className="mt-1 text-gray-700 dark:text-gray-300">{selectedSuscription.subscription_date}</p>
@@ -526,6 +582,10 @@ const SuscriptionsTab = () => {
                                         ))}
                                         {selectedSuscription.tags?.length === 0 && <p className="text-sm text-gray-500">Sin tags.</p>}
                                     </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Notas</h4>
+                                    <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{selectedSuscription.notes || 'No hay notas.'}</p>
                                 </div>
                             </>
                            )}
