@@ -9,12 +9,15 @@ import LifeStatus from "../components/dashboard/LifeStatus";
 import NotificationsPanel from "../components/dashboard/NotificationsPanel";
 import Settings from "../components/dashboard/Settings";
 import { useTheme } from "../context/ThemeContext";
+import SearchButton from "../components/dashboard/SearchButton";
+import SearchModal from "../components/dashboard/SearchModal";
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('documents');
     const { isDarkMode, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -41,6 +44,7 @@ const Dashboard = () => {
                 <h1 className="text-1xl font-bold text-gray-800 dark:text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
+                    <SearchButton onClick={() => setIsSearchModalOpen(true)} />
                     <div className="text-right">
                         <p className="text-sm font-medium text-gray-800 dark:text-white">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
@@ -162,6 +166,7 @@ const Dashboard = () => {
             <NotificationsPanel />
         </div>
         </div>
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
     </>
     )
    
