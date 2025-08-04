@@ -436,14 +436,17 @@ const SuscriptionsTab = () => {
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {currentSuscriptions.map((suscription) => (
+                                {currentSuscriptions.map((suscription) => {
+                                    const renewalInfo = getDaysUntilNextRenewal(suscription.subscription_date);
+                                    const isExpiringSoon = renewalInfo.days <= 10;
+                                    return (
                                     <div key={suscription.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         <div className="flex items-center min-w-0">
                                             <Repeat className="w-6 h-6 text-blue-500 mr-4 flex-shrink-0" />
                                             <div className="min-w-0">
                                                 <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{suscription.service_name}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    Renovación: {suscription.subscription_date} ({suscription.subscription_time})
+                                                <p className={`text-xs ${isExpiringSoon ? 'text-red-500 dark:text-red-400 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                    {renewalInfo.text}
                                                 </p>
                                             </div>
                                         </div>
@@ -456,7 +459,8 @@ const SuscriptionsTab = () => {
                                             </button>
                                         </div>
                                     </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         )}
                         {totalPages > 1 && (
