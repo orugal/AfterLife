@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Search, X, Loader2, FileText, Key, Server, Repeat } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const SearchModal = ({ isOpen, onClose }) => {
+const SearchModal = ({ isOpen, onClose, onResultClick }) => {
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState({
@@ -17,6 +17,10 @@ const SearchModal = ({ isOpen, onClose }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
+    const normalizeText = (text) => {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+
     const search = useCallback(async () => {
         if (!user || searchTerm.trim().length < 3) {
             if(searchTerm.trim().length > 0 && searchTerm.trim().length < 3) {
@@ -27,7 +31,7 @@ const SearchModal = ({ isOpen, onClose }) => {
 
         setIsLoading(true);
         setHasSearched(true);
-        const term = searchTerm.toLowerCase();
+        const term = normalizeText(searchTerm);
 
         try {
             const searchPromises = {
@@ -40,16 +44,16 @@ const SearchModal = ({ isOpen, onClose }) => {
             const [credentialsSnap, documentsSnap, serversSnap, suscriptionsSnap] = await Promise.all(Object.values(searchPromises));
 
             const credentials = credentialsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(cred => cred.service_name.toLowerCase().includes(term) || cred.username.toLowerCase().includes(term) || (cred.notes && cred.notes.toLowerCase().includes(term)));
+                .filter(cred => normalizeText(cred.service_name).includes(term) || normalizeText(cred.username).includes(term) || (cred.notes && normalizeText(cred.notes).includes(term)));
 
             const documents = documentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(doc => doc.filename.toLowerCase().includes(term) || (doc.notes && doc.notes.toLowerCase().includes(term)));
+                .filter(doc => normalizeText(doc.filename).includes(term) || (doc.notes && normalizeText(doc.notes).includes(term)));
 
             const servers = serversSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(server => server.name.toLowerCase().includes(term) || server.ip_domain.toLowerCase().includes(term) || (server.instructions && server.instructions.toLowerCase().includes(term)));
+                .filter(server => normalizeText(server.name).includes(term) || normalizeText(server.ip_domain).includes(term) || (server.instructions && normalizeText(server.instructions).includes(term)));
 
             const suscriptions = suscriptionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(sub => sub.service_name.toLowerCase().includes(term) || (sub.notes && sub.notes.toLowerCase().includes(term)));
+                .filter(sub => normalizeText(sub.service_name).includes(term) || (sub.notes && normalizeText(sub.notes).includes(term)));
 
             setResults({ credentials, documents, servers, suscriptions });
 
@@ -88,7 +92,12 @@ const SearchModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const renderResultSection = (title, items, icon) => {
+    const handleResultClick = (item, type) => {
+        onResultClick(item, type);
+        onClose();
+    };
+
+    const renderResultSection = (title, items, icon, type) => {
         if (items.length === 0) return null;
 
         return (
@@ -99,7 +108,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                 </div>
                 <ul className="space-y-2">
                     {items.map(item => (
-                        <li key={item.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                        <li key={item.id} onClick={() => handleResultClick(item, type)} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer">
                             <p className="font-medium text-gray-900 dark:text-white">{item.service_name || item.filename || item.name}</p>
                             {item.username && <p className="text-sm text-gray-500 dark:text-gray-400">{item.username}</p>}
                             {item.ip_domain && <p className="text-sm text-gray-500 dark:text-gray-400">{item.ip_domain}</p>}
@@ -144,10 +153,10 @@ const SearchModal = ({ isOpen, onClose }) => {
                     )}
                     {!isLoading && totalResults > 0 && (
                         <>
-                            {renderResultSection("Credenciales", results.credentials, <Key className="w-5 h-5 text-yellow-500" />)}
-                            {renderResultSection("Documentos", results.documents, <FileText className="w-5 h-5 text-blue-500" />)}
-                            {renderResultSection("Servidores", results.servers, <Server className="w-5 h-5 text-green-500" />)}
-                            {renderResultSection("Suscripciones", results.suscriptions, <Repeat className="w-5 h-5 text-indigo-500" />)}
+                            {renderResultSection("Credenciales", results.credentials, <Key className="w-5 h-5 text-yellow-500" />, 'credential')}
+                            {renderResultSection("Documentos", results.documents, <FileText className="w-5 h-5 text-blue-500" />, 'document')}
+                            {renderResultSection("Servidores", results.servers, <Server className="w-5 h-5 text-green-500" />, 'server')}
+                            {renderResultSection("Suscripciones", results.suscriptions, <Repeat className="w-5 h-5 text-indigo-500" />, 'suscription')}
                         </>
                     )}
                      {!isLoading && !hasSearched && (

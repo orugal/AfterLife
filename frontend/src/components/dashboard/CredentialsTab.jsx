@@ -6,7 +6,7 @@ import { collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc } 
 import { Key, Eye, EyeOff, Trash2, Tag, Search, PlusCircle, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const CredentialsTab = () => {
+const CredentialsTab = ({ selectedItem }) => {
     const { user } = useAuth();
 
     // Form state
@@ -82,6 +82,12 @@ const CredentialsTab = () => {
             setLoading(false);
         }
     }, [user]);
+
+    useEffect(() => {
+        if (selectedItem) {
+            handleView(selectedItem);
+        }
+    }, [selectedItem]);
 
     const fetchCredentials = async () => {
         if (!user) return;
@@ -250,7 +256,7 @@ const CredentialsTab = () => {
         <>
             <div className="space-y-8">
                 {/* Form Section */}
-                <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
+                <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md" id="credentials-form">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
                         {editingCredentialId ? <Pencil className="w-8 h-8 mr-3 text-blue-500" /> : <PlusCircle className="w-8 h-8 mr-3 text-green-500" />}
                         {editingCredentialId ? 'Editando Credencial' : 'Agregar Nueva Credencial'}

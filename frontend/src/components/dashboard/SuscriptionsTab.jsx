@@ -33,7 +33,7 @@ const getDaysUntilNextRenewal = (subscriptionDate) => {
 };
 
 
-const SuscriptionsTab = () => {
+const SuscriptionsTab = ({ selectedItem }) => {
     const { user } = useAuth();
 
     // Form State
@@ -175,6 +175,12 @@ const SuscriptionsTab = () => {
 
         return () => unsubscribe();
     }, [user]);
+
+    useEffect(() => {
+        if (selectedItem) {
+            handleViewDetails(selectedItem);
+        }
+    }, [selectedItem]);
 
     // Filtering and Pagination Logic
     const filteredSuscriptions = suscriptions

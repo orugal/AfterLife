@@ -18,6 +18,7 @@ const Dashboard = () => {
     const { isDarkMode, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
@@ -31,6 +32,27 @@ const Dashboard = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [menuRef]);
+
+    const handleSearchResultClick = (item, type) => {
+        setSelectedItem({ ...item, type });
+        // Switch to the relevant tab
+        switch(type) {
+            case 'document':
+                setActiveTab('documents');
+                break;
+            case 'credential':
+                setActiveTab('credentials');
+                break;
+            case 'server':
+                setActiveTab('servers');
+                break;
+            case 'suscription':
+                setActiveTab('suscriptions');
+                break;
+            default:
+                break;
+        }
+    };
 
     return (
     <>
@@ -147,16 +169,16 @@ const Dashboard = () => {
 
                 {/* Contenido de Tabs */}
                 {activeTab === 'documents' && (
-                    <DocumentsTab />
+                    <DocumentsTab selectedItem={selectedItem?.type === 'document' ? selectedItem : null} />
                 )}
                 {activeTab === 'credentials' && (
-                    <CredentialsTab />
+                    <CredentialsTab selectedItem={selectedItem?.type === 'credential' ? selectedItem : null} />
                 )}
                 {activeTab === 'servers' && (
-                    <ServersTab />
+                    <ServersTab selectedItem={selectedItem?.type === 'server' ? selectedItem : null} />
                 )}
                 {activeTab === 'suscriptions' && (
-                    <SuscriptionsTab />
+                    <SuscriptionsTab selectedItem={selectedItem?.type === 'suscription' ? selectedItem : null} />
                 )}
                 </div>
             </div>
@@ -166,7 +188,7 @@ const Dashboard = () => {
             <NotificationsPanel />
         </div>
         </div>
-        <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
+        <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} onResultClick={handleSearchResultClick} />
     </>
     )
    
