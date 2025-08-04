@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, FileText, Key, Server, LogOut, Sun, Moon } from 'lucide-react';
+import { Heart, FileText, Key, Server, LogOut, Sun, Moon, Repeat } from 'lucide-react';
 import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
 import DocumentsTab from "../components/dashboard/DocumentsTab";
+import SuscriptionsTab from "../components/dashboard/SuscriptionsTab";
 import { useAuth } from "../context/AuthContext";
 import LifeStatus from "../components/dashboard/LifeStatus";
 import NotificationsPanel from "../components/dashboard/NotificationsPanel";
@@ -127,6 +128,17 @@ const Dashboard = () => {
                     <Server className="w-4 h-4 mr-2" />
                     Servidores
                     </button>
+                    <button
+                    onClick={() => setActiveTab('suscriptions')}
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'suscriptions'
+                        ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                    >
+                    <Repeat className="w-4 h-4 mr-2" />
+                    Renovaciones
+                    </button>
                 </div>
 
                 {/* Contenido de Tabs */}
@@ -138,6 +150,9 @@ const Dashboard = () => {
                 )}
                 {activeTab === 'servers' && (
                     <ServersTab />
+                )}
+                {activeTab === 'suscriptions' && (
+                    <SuscriptionsTab />
                 )}
                 </div>
             </div>
