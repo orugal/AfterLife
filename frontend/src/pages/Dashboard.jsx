@@ -58,17 +58,17 @@ const Dashboard = () => {
     <>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-gray-900 dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <div className="max-w-6xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                 <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-                <h1 className="text-1xl font-bold text-gray-800 dark:text-white">After Life</h1>
+                <h1 className="text-1xl font-bold text-white dark:text-white">After Life</h1>
                 </div>
                 <div className="flex items-center space-x-4">
                     <SearchButton onClick={() => setIsSearchModalOpen(true)} />
                     <div className="text-right">
-                        <p className="text-sm font-medium text-gray-800 dark:text-white">{user?.name}</p>
+                        <p className="text-sm font-medium text-white dark:text-white">{user?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
                     </div>
                     <div className="relative" ref={menuRef}>
