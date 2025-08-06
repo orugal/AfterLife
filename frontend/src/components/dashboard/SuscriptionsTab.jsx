@@ -11,7 +11,7 @@ const getDaysUntilNextRenewal = (subscriptionDate) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [year, month, day] = subscriptionDate.split('-').map(Number);
+    const [, month, day] = subscriptionDate.split('-').map(Number);
 
     let nextRenewalDate = new Date(today.getFullYear(), month - 1, day);
     nextRenewalDate.setHours(0,0,0,0);

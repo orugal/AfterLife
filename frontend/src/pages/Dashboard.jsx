@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, FileText, Key, Server, LogOut, Sun, Moon, Repeat } from 'lucide-react';
+import { Heart, FileText, Key, Server, LogOut, Sun, Moon, Repeat, Rss } from 'lucide-react';
 import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
 import DocumentsTab from "../components/dashboard/DocumentsTab";
 import SuscriptionsTab from "../components/dashboard/SuscriptionsTab";
+import FeedTab from "../components/dashboard/FeedTab";
 import { useAuth } from "../context/AuthContext";
 import LifeStatus from "../components/dashboard/LifeStatus";
 import NotificationsPanel from "../components/dashboard/NotificationsPanel";
@@ -14,7 +15,7 @@ import SearchModal from "../components/dashboard/SearchModal";
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
-    const [activeTab, setActiveTab] = useState('documents');
+    const [activeTab, setActiveTab] = useState('feed');
     const { isDarkMode, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -124,6 +125,17 @@ const Dashboard = () => {
                 {/* Tabs */}
                 <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-xl p-1 mb-6 overflow-x-auto">
                     <button
+                    onClick={() => setActiveTab('feed')}
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'feed'
+                        ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                    >
+                    <Rss className="w-4 h-4 mr-2" />
+                    Feed
+                    </button>
+                    <button
                     onClick={() => setActiveTab('documents')}
                     className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
                         activeTab === 'documents' 
@@ -170,6 +182,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Contenido de Tabs */}
+                {activeTab === 'feed' && <FeedTab />}
                 {activeTab === 'documents' && (
                     <DocumentsTab selectedItem={selectedItem?.type === 'document' ? selectedItem : null} />
                 )}
