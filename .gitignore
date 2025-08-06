@@ -23,4 +23,4 @@
 /frontend/*.sln
 /frontend/*.sw?
 
-/backend/node_modules
+/backend/functions/node_modules
