@@ -81,7 +81,7 @@ const CredentialsTab = ({ selectedItem }) => {
         } else {
             setLoading(false);
         }
-    }, [user, fetchCredentials, fetchAllTags]);
+    }, [user]);
 
     useEffect(() => {
         if (selectedItem) {

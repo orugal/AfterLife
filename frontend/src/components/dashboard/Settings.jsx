@@ -10,6 +10,7 @@ const Settings = () => {
     const [notificationDays, setNotificationDays] = useState(15);
     const [emergencyEmails, setEmergencyEmails] = useState([]);
     const [emailInput, setEmailInput] = useState('');
+    const [loading, setLoading] = useState(false);
     const isInitialMount = useRef(true);
 
     useEffect(() => {
@@ -73,7 +74,7 @@ const Settings = () => {
         return () => {
             clearTimeout(handler);
         };
-    }, [notificationDays, emergencyEmails, user, handleSaveSettings]);
+    }, [notificationDays, emergencyEmails, user]);
 
     const handleSaveSettings = async () => {
         if (!user) {

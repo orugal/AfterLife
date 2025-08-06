@@ -10,11 +10,11 @@ const FeedTab = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [postContent, setPostContent] = useState('');
     const [posts, setPosts] = useState([]);
-    const [lastVisible, setLastVisible] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observer = useRef();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [postsPerPage] = useState(10);
     const [usersData, setUsersData] = useState({});
+    const [totalPages, setTotalPages] = useState(1);
 
     const fetchUserData = async (userId) => {
         if (usersData[userId]) return usersData[userId];
@@ -32,63 +32,42 @@ const FeedTab = () => {
         return null;
     };
 
-    const fetchPosts = useCallback(async () => {
-        if (loading || !hasMore) return;
+    const fetchPosts = useCallback(async (page) => {
         setLoading(true);
-
         try {
-            let q = query(collection(db, 'feeds'), orderBy('date_post', 'desc'), limit(10));
-            if (lastVisible) {
-                q = query(collection(db, 'feeds'), orderBy('date_post', 'desc'), startAfter(lastVisible), limit(10));
-            }
-            const documentSnapshots = await getDocs(q);
+            const feedsRef = collection(db, 'feeds');
+            const countQuery = query(feedsRef);
+            const snapshot = await getDocs(countQuery);
+            const totalPosts = snapshot.size;
+            setTotalPages(Math.ceil(totalPosts / postsPerPage));
 
+            let q = query(feedsRef, orderBy('date_post', 'desc'), limit(postsPerPage));
+
+            if (page > 1) {
+                const startAtIndex = (page - 1) * postsPerPage;
+                const prevPageQuery = query(feedsRef, orderBy('date_post', 'desc'), limit(startAtIndex));
+                const prevPageSnapshot = await getDocs(prevPageQuery);
+                const lastVisible = prevPageSnapshot.docs[prevPageSnapshot.docs.length - 1];
+                q = query(feedsRef, orderBy('date_post', 'desc'), startAfter(lastVisible), limit(postsPerPage));
+            }
+
+            const documentSnapshots = await getDocs(q);
             const newPosts = await Promise.all(documentSnapshots.docs.map(async (doc) => {
                 const post = { id: doc.id, ...doc.data() };
                 post.user = await fetchUserData(post.userId);
                 return post;
             }));
-
-            setPosts(prevPosts => [...prevPosts, ...newPosts]);
-
-            const lastDoc = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-            setLastVisible(lastDoc);
-
-            if (documentSnapshots.empty || documentSnapshots.docs.length < 10) {
-                setHasMore(false);
-            }
+            setPosts(newPosts);
         } catch (error) {
             toast.error('Error al cargar las publicaciones.');
             console.error('Error fetching posts: ', error);
         }
-
         setLoading(false);
-    }, [lastVisible, loading, hasMore, fetchUserData]);
+    }, [postsPerPage, fetchUserData]);
 
     useEffect(() => {
-        const q = query(collection(db, 'feeds'), orderBy('date_post', 'desc'));
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const newPosts = await Promise.all(snapshot.docs.map(async (doc) => {
-                const post = { id: doc.id, ...doc.data() };
-                post.user = await fetchUserData(post.userId);
-                return post;
-            }));
-            setPosts(newPosts);
-        });
-
-        return () => unsubscribe();
-    }, [fetchUserData]);
-
-    const lastPostElementRef = useCallback(node => {
-        if (loading) return;
-        if (observer.current) observer.current.disconnect();
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-                fetchPosts();
-            }
-        });
-        if (node) observer.current.observe(node);
-    }, [loading, hasMore, fetchPosts]);
+        fetchPosts(currentPage);
+    }, [currentPage, fetchPosts]);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => {
@@ -132,13 +111,24 @@ const FeedTab = () => {
         }
 
         try {
-            await addDoc(collection(db, 'feeds'), {
+            const newPost = {
                 userId: user.uid,
                 post: postContent,
-                date_post: serverTimestamp(),
+                date_post: new Date(),
                 category: '',
                 tags: [],
+                user: {
+                    name: user.displayName,
+                    avatar: user.photoURL,
+                }
+            };
+
+            await addDoc(collection(db, 'feeds'), {
+                ...newPost,
+                date_post: serverTimestamp(),
             });
+
+            setPosts(prevPosts => [newPost, ...prevPosts]);
             toast.success('Publicación creada con éxito!');
             closeModal();
         } catch (error) {
@@ -161,12 +151,10 @@ const FeedTab = () => {
             </div>
 
             <div className="space-y-6">
-                {posts.map((post, index) => {
+                {posts.map((post) => {
                     const postUser = post.user;
-                    const postRef = posts.length === index + 1 ? lastPostElementRef : null;
-
                     return (
-                        <div ref={postRef} key={post.id} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md transition hover:shadow-lg">
+                        <div key={post.id} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md transition hover:shadow-lg">
                             <div className="flex items-start space-x-4">
                                 <img src={postUser?.avatar || 'https://i.pravatar.cc/48'} alt={postUser?.name} className="w-12 h-12 rounded-full object-cover" />
                                 <div className="flex-1">
@@ -186,9 +174,30 @@ const FeedTab = () => {
                         <Loader className="animate-spin text-blue-600" size={32} />
                     </div>
                 )}
-                {!hasMore && posts.length > 0 && <p className="text-center text-gray-500 dark:text-gray-400 py-4">No hay más publicaciones.</p>}
                 {posts.length === 0 && !loading && <p className="text-center text-gray-500 dark:text-gray-400 py-10">No hay publicaciones todavía. ¡Crea la primera!</p>}
             </div>
+
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-4 mt-6">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Anterior
+                    </button>
+                    <span className="text-gray-700 dark:text-gray-300">
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            )}
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">

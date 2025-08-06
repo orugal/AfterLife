@@ -97,7 +97,7 @@ const Login = () => {
             await loginWithGoogle();
             toast.success("Logged in successfully!");
             navigate('/dashboard');
-        } catch {
+        } catch (error) {
             toast.error("Failed to log in with Google.");
         }
     }
@@ -107,7 +107,7 @@ const Login = () => {
             await loginWithGitHub();
             toast.success("Logged in successfully!");
             navigate('/dashboard');
-        } catch {
+        } catch (error) {
             toast.error("Failed to log in with GitHub.");
         }
     }
