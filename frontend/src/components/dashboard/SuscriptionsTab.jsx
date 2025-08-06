@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Repeat, Plus, X, Loader2, Search, Tag, Trash2, Eye, Edit } from 'lucide-react';
+import { Repeat, Plus, X, Loader2, Search, Tag, Trash2, Eye, Edit, FileSpreadsheet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { exportToExcel } from '../../utils/exportUtils';
 import { db } from '../../firebase/config';
 import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
@@ -290,6 +291,23 @@ const SuscriptionsTab = ({ selectedItem }) => {
         }
     };
 
+    const handleExport = () => {
+        if (filteredSuscriptions.length === 0) {
+            toast.error("No hay datos para exportar.");
+            return;
+        }
+
+        const dataToExport = filteredSuscriptions.map(sub => ({
+            'Servicio': sub.service_name,
+            'Fecha de Suscripción': sub.subscription_date,
+            'Periodo': sub.subscription_time,
+            'Notas': sub.notes || '',
+            'Tags': sub.tags ? sub.tags.join(', ') : ''
+        }));
+
+        exportToExcel(dataToExport, 'suscripciones');
+    };
+
     return (
         <>
             <div className="space-y-8">
@@ -419,6 +437,14 @@ const SuscriptionsTab = ({ selectedItem }) => {
                                     ))}
                                 </select>
                             </div>
+                            <button
+                                onClick={handleExport}
+                                disabled={filteredSuscriptions.length === 0}
+                                className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            >
+                                <FileSpreadsheet className="w-5 h-5 mr-2" />
+                                Exportar a Excel
+                            </button>
                         </div>
                     </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileText, Upload, X, File, Loader2, Search, Tag, Trash2, Edit, Eye } from 'lucide-react';
+import { FileText, Upload, X, File, Loader2, Search, Tag, Trash2, Edit, Eye, FileSpreadsheet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { exportToExcel } from '../../utils/exportUtils';
 import { db, storage } from '../../firebase/config';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -279,6 +280,22 @@ const DocumentsTab = ({ selectedItem }) => {
         }
     };
 
+    const handleExport = () => {
+        if (filteredDocuments.length === 0) {
+            toast.error("No hay datos para exportar.");
+            return;
+        }
+
+        const dataToExport = filteredDocuments.map(doc => ({
+            'Nombre de archivo': doc.filename,
+            'Notas': doc.notes || '',
+            'Tags': doc.tags ? doc.tags.join(', ') : '',
+            'Enlace': doc.file_path
+        }));
+
+        exportToExcel(dataToExport, 'documentos');
+    };
+
    return (
     <>
         <div className="space-y-8">
@@ -428,6 +445,14 @@ const DocumentsTab = ({ selectedItem }) => {
                                 ))}
                             </select>
                         </div>
+                        <button
+                            onClick={handleExport}
+                            disabled={filteredDocuments.length === 0}
+                            className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                            <FileSpreadsheet className="w-5 h-5 mr-2" />
+                            Exportar a Excel
+                        </button>
                     </div>
                 </div>
 
