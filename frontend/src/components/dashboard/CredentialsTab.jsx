@@ -3,8 +3,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../firebase/config';
 import { collection, addDoc, getDocs, query, where, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { Key, Eye, EyeOff, Trash2, Tag, Search, PlusCircle, Pencil } from 'lucide-react';
+import { Key, Eye, EyeOff, Trash2, Tag, Search, PlusCircle, Pencil, FileSpreadsheet } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { exportToExcel } from '../../utils/exportUtils';
 
 const CredentialsTab = ({ selectedItem }) => {
     const { user } = useAuth();
@@ -252,6 +253,23 @@ const CredentialsTab = ({ selectedItem }) => {
         setTags('');
     };
 
+    const handleExport = () => {
+        if (filteredCredentials.length === 0) {
+            toast.error("No hay datos para exportar.");
+            return;
+        }
+
+        const dataToExport = filteredCredentials.map(cred => ({
+            'Servicio': cred.service_name,
+            'Usuario': cred.username,
+            'Contraseña': decryptPassword(cred.password_encrypted),
+            'Notas': cred.notes || '',
+            'Tags': cred.tags ? cred.tags.join(', ') : ''
+        }));
+
+        exportToExcel(dataToExport, 'credenciales');
+    };
+
     return (
         <>
             <div className="space-y-8">
@@ -360,6 +378,17 @@ const CredentialsTab = ({ selectedItem }) => {
                             </select>
                             <Tag className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                         </div>
+                    </div>
+
+                    <div className="mb-4 flex justify-end">
+                        <button
+                            onClick={handleExport}
+                            disabled={filteredCredentials.length === 0}
+                            className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                            <FileSpreadsheet className="w-5 h-5 mr-2" />
+                            Exportar a Excel
+                        </button>
                     </div>
 
                     {loading ? (
