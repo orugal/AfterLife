@@ -74,7 +74,7 @@ const DocsPanel = ({ selectedItem }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!title || !text) {
+        if (!editedTitle || !editedText) {
             toast.error('Por favor, completa el título y el texto.');
             return;
         }
@@ -89,23 +89,23 @@ const DocsPanel = ({ selectedItem }) => {
         try {
             const docData = {
                 user_id: user.id,
-                title,
-                repository,
-                text,
-                tags,
+                title: editedTitle,
+                repository: editedRepository,
+                text: editedText,
+                tags: editedTags,
                 created_at: serverTimestamp()
             };
             await addDoc(collection(db, 'docs'), docData);
 
             const tagsCollectionRef = collection(db, 'tags');
-            for (const tag of tags) {
+            for (const tag of editedTags) {
                 const tagDocRef = doc(tagsCollectionRef, tag);
                 await setDoc(tagDocRef, { name: tag }, { merge: true });
             }
 
             toast.success('¡Documentación guardada con éxito!', { id: toastId });
             resetForm();
-            setIsModalOpen(false);
+            closeModal();
 
         } catch (error) {
             console.error("Error al guardar la documentación:", error);
@@ -304,7 +304,7 @@ const DocsPanel = ({ selectedItem }) => {
                                 className="flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 <Plus className="w-5 h-5 mr-2" />
-                                Nueva Documentación
+                                Nueva
                             </button>
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
