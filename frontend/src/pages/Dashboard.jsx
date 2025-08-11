@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, FileText, Key, Server, LogOut, Sun, Moon, Repeat } from 'lucide-react';
+import { Heart, FileText, Key, Server, LogOut, Sun, Moon, Repeat, Book } from 'lucide-react';
 import ServersTab from "../components/dashboard/ServersTab";
 import CredentialsTab from "../components/dashboard/CredentialsTab";
 import DocumentsTab from "../components/dashboard/DocumentsTab";
 import SuscriptionsTab from "../components/dashboard/SuscriptionsTab";
+import DocsPanel from "../components/dashboard/DocsPanel";
 import { useAuth } from "../context/AuthContext";
 import LifeStatus from "../components/dashboard/LifeStatus";
 import NotificationsPanel from "../components/dashboard/NotificationsPanel";
@@ -49,6 +50,9 @@ const Dashboard = () => {
             case 'suscription':
                 setActiveTab('suscriptions');
                 break;
+        case 'doc':
+            setActiveTab('docs');
+            break;
             default:
                 break;
         }
@@ -167,6 +171,17 @@ const Dashboard = () => {
                     <Repeat className="w-4 h-4 mr-2" />
                     Renovaciones
                     </button>
+                    <button
+                    onClick={() => setActiveTab('docs')}
+                    className={`cursor-pointer flex-shrink-0 flex items-center justify-center py-2 px-4 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'docs'
+                        ? 'bg-white dark:bg-gray-900 shadow-sm text-blue-600 dark:text-blue-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                    >
+                    <Book className="w-4 h-4 mr-2" />
+                    Docs
+                    </button>
                 </div>
 
                 {/* Contenido de Tabs */}
@@ -181,6 +196,9 @@ const Dashboard = () => {
                 )}
                 {activeTab === 'suscriptions' && (
                     <SuscriptionsTab selectedItem={selectedItem?.type === 'suscription' ? selectedItem : null} />
+                )}
+                {activeTab === 'docs' && (
+                    <DocsPanel selectedItem={selectedItem?.type === 'doc' ? selectedItem : null} />
                 )}
                 </div>
             </div>
