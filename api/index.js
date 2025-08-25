@@ -465,8 +465,8 @@ const sendReminderFCM = async (userData, daysUntilLimit, daysPassed, isScriptRun
   }
 };
 
-// Ejecutar cada 24 horas a las 00:00
-cron.schedule('0 0 * * *', protocoloAfterLife);
+// Ejecutar cada 24 horas a las 08:00 AM
+cron.schedule('0 8 * * *', protocoloAfterLife);
 // Ejecutar inmediatamente
 //protocoloAfterLife();
 console.log('Script programado para ejecutar cada 24 horas...');
