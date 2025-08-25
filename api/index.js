@@ -142,6 +142,20 @@ const protocoloAfterLife = async () => {
         }
         
         console.log(`🚨 PROTOCOLO ACTIVADO para ${userData.name}! Han pasado ${daysDifference} días (límite: ${notificationDays})`);
+
+        // Lógica para enviar email por 5 días
+        const protocolStartedDate = userSettings.protocolStartedAt ? userSettings.protocolStartedAt.toDate() : null;
+        let daysSinceProtocolStart = -1;
+
+        if (protocolStartedDate) {
+          daysSinceProtocolStart = Math.floor((currentDate - protocolStartedDate) / (1000 * 60 * 60 * 24));
+          console.log(`ℹ️  Protocolo iniciado hace ${daysSinceProtocolStart} días.`);
+        }
+
+        if (protocolStartedDate && daysSinceProtocolStart >= 5) {
+          console.log(`✅ Ciclo de 5 días de notificaciones completado para ${userData.name}. No se enviarán más emails.`);
+          continue;
+        }
         
         // Enviar emails a contactos de emergencia
         if (emergencyEmails.length === 0) {
@@ -156,6 +170,16 @@ const protocoloAfterLife = async () => {
           } catch (emailError) {
             console.error(`❌ Error enviando email a ${emergencyEmail}:`, emailError);
           }
+        }
+
+        // Si es la primera vez que se activa el protocolo, guardar la fecha de inicio
+        if (!protocolStartedDate) {
+          console.log(`🚀 Iniciando ciclo de 5 días de notificaciones para ${userData.name}.`);
+          const userSettingsDocRef = settingsQuery.docs[0].ref;
+          await userSettingsDocRef.update({
+            protocolStartedAt: admin.firestore.Timestamp.fromDate(currentDate)
+          });
+          console.log(`💾 Guardada la fecha de inicio del protocolo para ${userData.name}.`);
         }
         
         console.log(`✅ Protocolo completado para ${userData.name}`);
@@ -215,8 +239,11 @@ const generateHtml = (userData, emergencyEmail, notificationDays, daysPassed, la
     </p>
     
     <p style="font-size: 12px; color: #999; margin-top: 20px;">
-      Este es un email automático del sistema After Life. Si cree que esto es un error, 
-      puede contactar con nuestro soporte técnico.
+      Este es un email automático del sistema After Life. Si cree que esto es un error,
+      contacte con nuestro equipo de soporte. No responda a este email.
+    </p>
+    <p style="font-size: 12px; color: #aaa; margin-top: 10px;">
+      &copy; ${new Date().getFullYear()} After Life App. Todos los derechos reservados.
     </p>
   </div>
 `;
@@ -225,6 +252,13 @@ const generateHtml = (userData, emergencyEmail, notificationDays, daysPassed, la
 const sendEmergencyEmail = async (userData, emergencyEmail, notificationDays, daysPassed, lastAliveDate) => {
   const emailHtml = generateHtml(userData, emergencyEmail, notificationDays, daysPassed, lastAliveDate);
   const subject = `🚨 Protocolo After Life Activado - ${userData.name}`;
+
+  // --- RECOMENDACIÓN DE BUENAS PRÁCTICAS ---
+  // Para mejorar la entregabilidad y evitar que los correos lleguen a SPAM,
+  // se recomienda encarecidamente utilizar un servicio de email transaccional
+  // como Amazon SES, SendGrid o Mailgun, en lugar de una cuenta de Gmail.
+  // Estos servicios están optimizados para el envío de correos automáticos
+  // y gestionan la reputación del remitente, SPF, DKIM, etc.
   
   const mailOptions = {
     from: {
@@ -252,11 +286,11 @@ Acceda a la información en: https://afterlife-515a8.firebaseapp.com/access?emai
 
 Gracias por ser parte del protocolo After Life.
     `.trim(),
-    // Headers adicionales
+    // Headers para mejorar la entregabilidad y seguir buenas prácticas.
+    // Se eliminan los headers 'X-Priority', 'X-MSMail-Priority' e 'Importance',
+    // ya que pueden ser contraproducentes y ser marcados como SPAM.
     headers: {
-      'X-Priority': '1', // Alta prioridad
-      'X-MSMail-Priority': 'High',
-      'Importance': 'high'
+      'List-Unsubscribe': '<mailto:support@afterlife.app?subject=unsubscribe>'
     }
   };
   
