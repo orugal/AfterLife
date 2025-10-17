@@ -1,19 +1,57 @@
 # ===================================================================
 # 🔒 ARCHIVOS SENSIBLES - NUNCA SUBIR
 # ===================================================================
+
+# Variables de entorno principales
 .env
 .env.local
+.env.*.local
 .env.development
 .env.production
-.env.*.local
+.env.test
+.env.staging
+
+# Variables de entorno por directorio
+frontend/.env
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+frontend/.env.*.local
 
 # Variables de entorno de Firebase Functions
 functions/.env
 functions/.env.local
+functions/.env.development
+functions/.env.production
+functions/.env.*.local
 
-# Credenciales de service account
+# Variables de entorno de backend (si existe)
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# Credenciales de Firebase
 **/serviceAccountKey.json
 **/service-account-*.json
+**/firebase-adminsdk-*.json
+firebase-service-account.json
+firebaseServiceAccountKey.json
+
+# Configuraciones específicas de Firebase
+.firebaserc.local
+firebase.local.json
+functions/.runtimeconfig.json
+
+# Credenciales de APIs externas
+**/credentials.json
+**/config.json
+**/secrets.json
+
+# Archivos de configuración con credenciales
+config.local.js
+config.production.js
+config.development.js
+**/config.local.*
 
 # ===================================================================
 # 📦 DEPENDENCIAS Y BUILD

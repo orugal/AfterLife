@@ -5,25 +5,35 @@ import { getMessaging } from 'firebase-admin/messaging';
 import moment from 'moment-timezone';
 import fetch from 'node-fetch';
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+// Cargar variables de entorno
+dotenv.config();
 
 initializeApp();
 const db = getFirestore();
 const messaging = getMessaging();
-// No necesitas FCM Server Key - Firebase Functions usa automáticamente las credenciales del proyecto
 
+// Configuración de Nodemailer con variables de entorno
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'afterlifeorugal@gmail.com',
-    pass: 'jwql syxa bweg tfgr'
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD
   }
 });
+
+// Verificar que las variables de entorno estén configuradas
+if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+  console.error('⚠️ ADVERTENCIA: Variables de entorno GMAIL_USER o GMAIL_APP_PASSWORD no configuradas');
+  console.error('📝 Copia functions/.env.example a functions/.env y configura las credenciales');
+}
 
 const creativeMessage = "¿Estás vivo? 😊 Realiza tu check-in hoy y confirma que todo está bien";
 
 export const checkAliveStatus = onSchedule({
   schedule: '10 8 * * *',
-  timeZone: 'America/Bogota'
+  timeZone: process.env.TIMEZONE || 'America/Bogota'
 }, async (event) => {
   try {
     console.log('Iniciando verificación de estado de usuarios...');
@@ -75,7 +85,7 @@ export const checkAliveStatus = onSchedule({
             for (const email of emergencyEmails) {
               try {
                 await transporter.sendMail({
-                  from: '"AfterLife Monitor" <afterlifeorugal@gmail.com>',
+                  from: `"${process.env.SENDER_NAME || 'AfterLife Monitor'}" <${process.env.GMAIL_USER}>`,
                   to: email,
                   subject: `Alerta: ${user.name} no ha hecho check-in`,
                   text: `Hola, ${user.name} no ha registrado actividad en ${daysSinceLastCheck} días. Por favor verifica si está bien.`

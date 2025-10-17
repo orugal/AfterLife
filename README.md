@@ -446,7 +446,38 @@ npm install
 ```bash
 cd functions
 npm install
+
+# ⚠️ IMPORTANTE: Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus credenciales reales (ver sección Variables de Entorno)
 ```
+
+### **🔧 Configurar Variables de Entorno (Functions)**
+
+#### **Crear archivo `.env` en `/functions`**
+```bash
+cd functions
+cp .env.example .env
+```
+
+#### **Completar credenciales en `functions/.env`**
+```env
+# Gmail SMTP para emails de emergencia
+GMAIL_USER=tu-email@gmail.com
+GMAIL_APP_PASSWORD=tu-password-de-aplicacion
+
+# Configuraciones del sistema
+TIMEZONE=America/Bogota
+DEFAULT_NOTIFICATION_DAYS=15
+SENDER_NAME=AfterLife Monitor
+```
+
+#### **⚠️ Obtener Gmail App Password**
+1. Ve a [Google Account Security](https://myaccount.google.com/security)
+2. Activa **2-Factor Authentication** si no lo tienes
+3. Genera **App Password** para "Mail"
+4. Copia el password **CON ESPACIOS** (ej: `jwql syxa bweg tfgr`)
+5. Úsalo en `GMAIL_APP_PASSWORD`
 
 ## 🚀 Comandos de Deployment
 
