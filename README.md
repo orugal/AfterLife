@@ -70,7 +70,6 @@ AfterLife/
 │   ├── index.js              # Función scheduled principal
 │   ├── package.json          # Dependencias backend
 │   └── test-local.js         # Testing local
-├── backend/                   # Funciones adicionales (legacy)
 └── firebase.json             # Configuración Firebase
 ```
 
