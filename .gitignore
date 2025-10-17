@@ -1,26 +1,159 @@
+# ===================================================================
+# 🔒 ARCHIVOS SENSIBLES - NUNCA SUBIR
+# ===================================================================
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# Variables de entorno de Firebase Functions
+functions/.env
+functions/.env.local
+
+# Credenciales de service account
+**/serviceAccountKey.json
+**/service-account-*.json
+
+# ===================================================================
+# 📦 DEPENDENCIAS Y BUILD
+# ===================================================================
+node_modules/
+frontend/node_modules/
+functions/node_modules/
+backend/functions/node_modules/
+
+# Build outputs
+dist/
+frontend/dist/
+frontend/dist-ssr/
+build/
+functions/lib/
+functions/dist/
+
 # Logs
-/frontend/logs
-/frontend/*.log
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-/frontend/pnpm-debug.log*
-/frontend/lerna-debug.log*
+logs/
+*.log
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
 
-/frontend/node_modules
-/frontend/dist
-/frontend/dist-ssr
-/frontend/*.local
+# ===================================================================
+# 🔥 FIREBASE ESPECÍFICO
+# ===================================================================
+.firebase/
+.firebaserc.local
+firebase-debug.log
+firebase-debug.*.log
 
+# Firebase emulators
+*-debug.log
+ui-debug.log
+firestore-debug.log
+database-debug.log
+pubsub-debug.log
+
+# ===================================================================
+# 💻 DESARROLLO LOCAL
+# ===================================================================
 # Editor directories and files
-/frontend/.vscode/*
-/frontend/!.vscode/extensions.json
-/frontend/.idea
-/frontend/.DS_Store
-/frontend/*.suo
-/frontend/*.ntvs*
-/frontend/*.njsproj
-/frontend/*.sln
-/frontend/*.sw?
+.vscode/
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+.idea/
+frontend/.idea/
+*.swp
+*.swo
+*~
 
-/backend/functions/node_modules
+# OS generated files
+.DS_Store
+frontend/.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+# Temporary files
+*.tmp
+*.temp
+*.local
+frontend/*.local
+.cache/
+
+# ===================================================================
+# 🧪 TESTING Y COVERAGE
+# ===================================================================
+coverage/
+.nyc_output/
+.coverage/
+*.lcov
+
+# ===================================================================
+# 🔧 HERRAMIENTAS DE DESARROLLO
+# ===================================================================
+# ESLint cache
+.eslintcache
+
+# Prettier cache  
+.prettiercache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+
+# ===================================================================
+# 🎯 PROYECTO ESPECÍFICO
+# ===================================================================
+# Archivos de backup locales
+backup/
+*.backup
+
+# Archivos de testing local
+test-local.js
+*.test.local.js
+
+# Configuraciones locales del desarrollador
+.local/
+local.config.js
+
+# ===================================================================
+# 📚 DOCUMENTACIÓN TEMPORAL
+# ===================================================================
+# Archivos temporales de desarrollo
+NOTES.md
+TODO.md
+screenshots/dev/
+*.dev.png
+*.dev.jpg
+
+# ===================================================================
+# 🌐 DEPLOYMENT
+# ===================================================================
+# Certificados SSL locales  
+*.pem
+*.key
+*.crt
+
+# ===================================================================
+# 📦 PACKAGE MANAGERS
+# ===================================================================
+# Yarn
+.yarn/
+.pnp.*
+
+# PNPM
+pnpm-lock.yaml
