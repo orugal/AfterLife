@@ -29,7 +29,29 @@ if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
   console.error('📝 Copia functions/.env.example a functions/.env y configura las credenciales');
 }
 
-const creativeMessage = "¿Estás vivo? 😊 Realiza tu check-in hoy y confirma que todo está bien";
+if (!process.env.AFTERLIFE_URL) {
+  console.error('⚠️ ADVERTENCIA: Variable de entorno AFTERLIFE_URL no configurada');
+  console.error('📝 Esta URL se usa para los enlaces en emails de emergencia');
+}
+
+// Mensajes aleatorios para notificaciones push
+const creativeMessages = [
+  "¿Estás vivo? 😊 Realiza tu check-in hoy y confirma que todo está bien",
+  "🌟 ¡Otro día más! Confirma que estás bien con tu check-in diario",
+  "💪 Sigues aquí, sigues fuerte. Haz tu check-in y continúa brillando",
+  "🚀 Tu legado digital está seguro. Solo confirma que todo va bien",
+  "🌅 Un nuevo día, nuevas oportunidades. ¡Haz tu check-in!",
+  "💜 Tus seres queridos confían en ti. Confirma que estás bien hoy",
+  "⚡ Eres importante para muchos. Tu check-in diario los tranquiliza",
+  "🎯 Mantén tu protocolo activo. Un simple click y listo",
+  "🛡️ Tu información está protegida. Solo falta tu confirmación diaria",
+  "✨ Cada día cuenta, cada check-in importa. ¡Hazlo ahora!"
+];
+
+// Función para obtener mensaje aleatorio
+const getRandomMessage = () => {
+  return creativeMessages[Math.floor(Math.random() * creativeMessages.length)];
+};
 
 export const checkAliveStatus = onSchedule({
   schedule: '10 8 * * *',
@@ -84,11 +106,52 @@ export const checkAliveStatus = onSchedule({
           if (emergencyEmails.length > 0) {
             for (const email of emergencyEmails) {
               try {
+                const emailHtml = `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+                    <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                      <h2 style="color: #dc3545; text-align: center; margin-bottom: 20px;">🚨 Protocolo AfterLife Activado</h2>
+                      
+                      <p style="font-size: 16px; line-height: 1.6; color: #333;">
+                        <strong>Se ha desplegado el protocolo AfterLife para ${user.name}.</strong>
+                      </p>
+                      
+                      <p style="font-size: 16px; line-height: 1.6; color: #333;">
+                        Usted ha sido seleccionado como <strong>contacto de confianza</strong> para mantener a salvo la información que <strong>${user.name}</strong> ha decidido proteger.
+                      </p>
+                      
+                      <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                        <p style="margin: 0; color: #856404;">
+                          <strong>📊 Estado actual:</strong> ${user.name} no ha registrado actividad en <strong>${daysSinceLastCheck} días</strong>.
+                        </p>
+                      </div>
+                      
+                      <p style="font-size: 16px; line-height: 1.6; color: #333;">
+                        Como contacto de emergencia, ahora tiene acceso al panel de información protegida. Por favor, verifique el estado de ${user.name} y acceda a la información crítica si es necesario.
+                      </p>
+                      
+                      <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.AFTERLIFE_URL}/emergency/${userId}" 
+                           style="background-color: #dc3545; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                          🛡️ Acceder al Dashboard de Emergencia
+                        </a>
+                      </div>
+                      
+                      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                      
+                      <p style="font-size: 14px; color: #666; text-align: center;">
+                        Este es un mensaje automático del sistema AfterLife.<br>
+                        Si tiene preguntas, por favor contacte directamente a ${user.name} o a su familia.
+                      </p>
+                    </div>
+                  </div>
+                `;
+
                 await transporter.sendMail({
                   from: `"${process.env.SENDER_NAME || 'AfterLife Monitor'}" <${process.env.GMAIL_USER}>`,
                   to: email,
-                  subject: `Alerta: ${user.name} no ha hecho check-in`,
-                  text: `Hola, ${user.name} no ha registrado actividad en ${daysSinceLastCheck} días. Por favor verifica si está bien.`
+                  subject: `🚨 Protocolo AfterLife Activado - ${user.name}`,
+                  html: emailHtml,
+                  text: `PROTOCOLO AFTERLIFE ACTIVADO\n\nSe ha desplegado el protocolo AfterLife para ${user.name}. Usted ha sido seleccionado como contacto de confianza para mantener a salvo su información protegida.\n\nEstado: ${user.name} no ha registrado actividad en ${daysSinceLastCheck} días.\n\nAcceda al dashboard: ${process.env.AFTERLIFE_URL}/emergency?user=${userId}\n\nPor favor verifique su estado y acceda a la información crítica si es necesario.`
                 });
                 console.log(`Email de emergencia enviado a: ${email}`);
               } catch (emailError) {
@@ -117,7 +180,7 @@ export const checkAliveStatus = onSchedule({
                 title: 'AfterLife Check',
                 body: daysSinceLastCheck >= notificationDays 
                   ? "⚠️ URGENTE: Tus contactos han sido notificados. ¡Haz check-in YA!"
-                  : creativeMessage
+                  : getRandomMessage()
               },
               data: {
                 type: 'alive_check',
@@ -140,7 +203,7 @@ export const checkAliveStatus = onSchedule({
                       title: 'AfterLife Check',
                       body: daysSinceLastCheck >= notificationDays 
                         ? "⚠️ URGENTE: Tus contactos han sido notificados. ¡Haz check-in YA!"
-                        : creativeMessage
+                        : getRandomMessage()
                     },
                     sound: 'default',
                     badge: 1,
@@ -153,7 +216,7 @@ export const checkAliveStatus = onSchedule({
                   title: 'AfterLife Check',
                   body: daysSinceLastCheck >= notificationDays 
                     ? "⚠️ URGENTE: Tus contactos han sido notificados. ¡Haz check-in YA!"
-                    : creativeMessage,
+                    : getRandomMessage(),
                   icon: '/icon-192.png',
                   badge: '/badge-72.png',
                   requireInteraction: true

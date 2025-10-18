@@ -465,6 +465,9 @@ cp .env.example .env
 GMAIL_USER=tu-email@gmail.com
 GMAIL_APP_PASSWORD=tu-password-de-aplicacion
 
+# URL del proyecto AfterLife (para enlaces en emails)
+AFTERLIFE_URL=https://tu-proyecto.firebaseapp.com
+
 # Configuraciones del sistema
 TIMEZONE=America/Bogota
 DEFAULT_NOTIFICATION_DAYS=15
@@ -852,6 +855,68 @@ Si eres programador y usas este proyecto:
 - ✅ **No necesitas dar crédito** (pero se aprecia)
 
 **Mi única petición**: Usa este código para hacer el mundo un poco más seguro.
+
+## ⚖️ Responsabilidad Compartida
+
+### 🛡️ **AfterLife (El Proyecto)**
+
+**AfterLife tiene como responsabilidad:**
+- ✅ Proveer el **código fuente completo** y funcional
+- ✅ Documentar el **mecanismo de protección** y administración
+- ✅ Ofrecer las **herramientas necesarias** para que los usuarios puedan:
+  - Guardar información de forma segura
+  - Configurar protocolos de emergencia  
+  - Gestionar contactos de confianza
+  - Administrar credenciales y documentos
+
+**AfterLife y su creador NO se hacen responsables de:**
+- ❌ La **información específica** que cada usuario almacene
+- ❌ Los **servidores o infraestructura** que el usuario final provea
+- ❌ La **continuidad del servicio** en instalaciones específicas
+- ❌ **Pérdidas de información** por mal uso o configuración incorrecta
+- ❌ **Decisiones administrativas** sobre qué información proteger
+- ❌ **Costos por servicios de Firebase** que el usuario pueda incurrir
+- ❌ **Cargos adicionales** si el usuario supera los topes gratuitos de Firebase
+
+> **📊 Importante sobre costos:** La filosofía de AfterLife es funcionar dentro de los **topes gratuitos de Firebase**. Si un usuario decide superar estos límites o migrar a **planes pagos**, es completamente **su responsabilidad financiera**.
+
+### 👤 **Usuario Final (Tu Responsabilidad)**
+
+**Como usuario de AfterLife, tú eres responsable de:**
+
+#### **🔧 Mantenimiento Técnico**
+- ✅ **Mantener el código actualizado** con las últimas versiones
+- ✅ **Administrar tu propia infraestructura** (Firebase, servidores, etc.)
+- ✅ **Configurar correctamente** las variables de entorno y credenciales
+- ✅ **Realizar backups** de tu información crítica
+- ✅ **Monitorear el funcionamiento** del sistema regularmente
+
+#### **📊 Gestión de Información**
+- ✅ **Mantener actualizada** toda la información almacenada
+- ✅ **Clasificar correctamente** los documentos y credenciales
+- ✅ **Parametrizar contraseñas** de documentos PDF en las credenciales correspondientes
+- ✅ **Revisar periódicamente** qué información sigue siendo relevante
+- ✅ **Actualizar contactos de emergencia** cuando sea necesario
+
+#### **🎯 Administración Activa**
+- ✅ **Realizar check-ins regulares** para mantener el protocolo activo
+- ✅ **Educar a tus contactos** sobre cómo usar el sistema en emergencias
+- ✅ **Documentar procesos específicos** de tu empresa o proyectos
+- ✅ **Mantener credenciales actualizadas** (passwords, tokens, certificados)
+
+### ⚠️ **Principio Fundamental**
+
+> **AfterLife NO funciona como sistema automático independiente.**
+> 
+> Requiere un **usuario activo** que esté constantemente:
+> - Administrando la información
+> - Actualizando credenciales
+> - Manteniendo el sistema
+> - Verificando su funcionamiento
+
+**Es una herramienta, no una solución mágica.**
+
+Tu información estará tan segura y actualizada como el esfuerzo que pongas en mantenerla.
 
 ## 🤝 Comunidad
 

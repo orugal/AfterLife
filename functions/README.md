@@ -30,6 +30,9 @@ nano .env  # o tu editor preferido
 GMAIL_USER=tu-email@gmail.com
 GMAIL_APP_PASSWORD=tu-password-con-espacios
 
+# URL del proyecto AfterLife (para enlaces en emails)
+AFTERLIFE_URL=https://tu-proyecto.firebaseapp.com
+
 # Configuraciones del sistema
 TIMEZONE=America/Bogota
 DEFAULT_NOTIFICATION_DAYS=15
