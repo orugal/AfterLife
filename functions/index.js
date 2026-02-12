@@ -240,7 +240,6 @@ export const checkAliveStatus = onSchedule({
                 fcmError.code === 'messaging/invalid-registration-token') {
               console.log(`🔄 Token FCM inválido para ${user.name}, debería actualizarse en la app`);
             }
-            pushSent = false;
           }
 
           await db.collection('notifications_sent').add({
