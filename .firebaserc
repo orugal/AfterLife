@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "afterlife-515a8"
-  }
+    "default": "afterlife-515a8",
+    "afterlife": "afterlife-515a8"
+  },
+  "targets": {},
+  "etags": {}
 }
