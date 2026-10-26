@@ -169,6 +169,7 @@ export const checkAliveStatus = onSchedule({
         } 
         
         // RECORDATORIO DIARIO: Siempre enviar FCM (independiente de si se envió email)
+        let pushSent = false;
         if (user.fcmToken) {
           try {
             console.log(`🔄 Intentando enviar FCM a ${user.name} con token: ${user.fcmToken.substring(0, 20)}...`);
@@ -227,6 +228,7 @@ export const checkAliveStatus = onSchedule({
             const response = await messaging.send(message);
             console.log(`✅ FCM enviado exitosamente a ${user.name}`);
             console.log(`📊 Response ID: ${response}`);
+            pushSent = true;
             
           } catch (fcmError) {
             console.error(`❌ Error enviando FCM a ${user.name}:`, fcmError.message);
@@ -248,6 +250,104 @@ export const checkAliveStatus = onSchedule({
           });
         } else {
           console.log(`Usuario ${user.name} no tiene FCM token`);
+        }
+
+        // RESPALDO EMAIL: Enviar email al usuario como respaldo de la notificación push
+        // Esto asegura que el usuario reciba el recordatorio incluso si la push falla
+        if (user.email && process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+          try {
+            console.log(`📧 Enviando email de respaldo a ${user.email}...`);
+            
+            const emailMessage = daysSinceLastCheck >= notificationDays 
+              ? "⚠️ URGENTE: Tus contactos han sido notificados. ¡Haz check-in YA!"
+              : getRandomMessage();
+
+            const emailHtml = `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+                <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                  <h2 style="color: ${daysSinceLastCheck >= notificationDays ? '#dc3545' : '#6366f1'}; text-align: center; margin-bottom: 20px;">
+                    ${daysSinceLastCheck >= notificationDays ? '⚠️' : '💜'} AfterLife Check-in
+                  </h2>
+                  
+                  <p style="font-size: 16px; line-height: 1.6; color: #333;">
+                    Hola <strong>${user.name}</strong>,
+                  </p>
+                  
+                  <p style="font-size: 16px; line-height: 1.6; color: #333;">
+                    ${emailMessage}
+                  </p>
+                  
+                  ${daysSinceLastCheck >= notificationDays ? `
+                  <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #856404;">
+                      <strong>⏰ Estado:</strong> Han pasado <strong>${daysSinceLastCheck} días</strong> desde tu último check-in.
+                    </p>
+                  </div>
+                  ` : `
+                  <div style="background-color: #e8f4f8; border: 1px solid #bee5eb; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #0c5460;">
+                      <strong>✅ Recordatorio:</strong> No olvides hacer tu check-in diario para mantener tu protocolo activo.
+                    </p>
+                  </div>
+                  `}
+                  
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${process.env.AFTERLIFE_URL || 'https://afterlife.app'}" 
+                       style="background-color: ${daysSinceLastCheck >= notificationDays ? '#dc3545' : '#6366f1'}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                      ${daysSinceLastCheck >= notificationDays ? '🚨' : '💜'} Hacer Check-in Ahora
+                    </a>
+                  </div>
+                  
+                  <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                  
+                  <p style="font-size: 14px; color: #666; text-align: center;">
+                    Este es un recordatorio automático del sistema AfterLife.<br>
+                    ${!pushSent ? 'Este email es un respaldo ya que no se pudo enviar la notificación push.<br>' : ''}
+                    Para gestionar tus notificaciones, accede a tu dashboard.
+                  </p>
+                </div>
+              </div>
+            `;
+
+            await transporter.sendMail({
+              from: `"${process.env.SENDER_NAME || 'AfterLife Monitor'}" <${process.env.GMAIL_USER}>`,
+              to: user.email,
+              subject: daysSinceLastCheck >= notificationDays 
+                ? `⚠️ URGENTE: AfterLife Check-in Requerido - ${user.name}`
+                : `💜 Recordatorio AfterLife: Tu Check-in Diario`,
+              html: emailHtml,
+              text: `${emailMessage}\n\nHaz tu check-in ahora: ${process.env.AFTERLIFE_URL || 'https://afterlife.app'}\n\n${!pushSent ? 'Este email es un respaldo ya que no se pudo enviar la notificación push.\n\n' : ''}${daysSinceLastCheck >= notificationDays ? `Han pasado ${daysSinceLastCheck} días desde tu último check-in.` : ''}`
+            });
+
+            console.log(`✅ Email de respaldo enviado exitosamente a ${user.email}`);
+            
+            await db.collection('notifications_sent').add({
+              user_id: userId,
+              sent_at: Timestamp.now(),
+              status: 'email_backup_sent',
+              type: daysSinceLastCheck >= notificationDays ? 'urgent_reminder' : 'daily_reminder',
+              recipient: user.email
+            });
+
+          } catch (emailError) {
+            console.error(`❌ Error enviando email de respaldo a ${user.email}:`, emailError);
+            
+            await db.collection('notifications_sent').add({
+              user_id: userId,
+              sent_at: Timestamp.now(),
+              status: 'email_backup_failed',
+              type: daysSinceLastCheck >= notificationDays ? 'urgent_reminder' : 'daily_reminder',
+              recipient: user.email,
+              error: emailError.message
+            });
+          }
+        } else {
+          if (!user.email) {
+            console.log(`⚠️ Usuario ${user.name} no tiene email configurado`);
+          }
+          if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+            console.log(`⚠️ Configuración de email no disponible (GMAIL_USER o GMAIL_APP_PASSWORD no configurados)`);
+          }
         }
       } catch (userError) {
         console.error(`Error procesando usuario ${userDoc.id}:`, userError);

@@ -1,5 +1,35 @@
 # 🔥 Firebase Functions - AfterLife
 
+## 📧 Email Backup para Notificaciones Diarias
+
+La función `checkAliveStatus` ahora incluye un **sistema de respaldo por email** que complementa las notificaciones push:
+
+### ¿Cómo funciona?
+
+1. **Notificación Push**: Se intenta enviar la notificación push al usuario (como siempre)
+2. **Email de Respaldo**: Inmediatamente después, se envía un email al usuario con el mismo recordatorio
+3. **Registro**: Se guarda un log en `notifications_sent` con estado `email_backup_sent`
+
+### Ventajas
+
+- ✅ **Mayor fiabilidad**: El usuario recibirá el recordatorio incluso si la notificación push falla
+- ✅ **Múltiples canales**: Email + Push = más probabilidad de llegar al usuario
+- ✅ **Información clara**: El email indica si es un respaldo por fallo de push
+- ✅ **Escalabilidad**: No requiere cambios en la app móvil
+
+### Tipos de Email
+
+**Email Normal** (días < límite):
+- Asunto: `💜 Recordatorio AfterLife: Tu Check-in Diario`
+- Mensaje aleatorio motivacional
+- Color: Azul (#6366f1)
+
+**Email Urgente** (días >= límite):
+- Asunto: `⚠️ URGENTE: AfterLife Check-in Requerido`
+- Mensaje de alerta que contactos fueron notificados
+- Color: Rojo (#dc3545)
+- Incluye contador de días sin check-in
+
 ## 🔧 Configuración de Variables de Entorno
 
 ### 1. **Configurar Credenciales**

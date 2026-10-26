@@ -22,7 +22,7 @@ Esa conversación me persiguió durante días. Como desarrollador freelance, aho
 
 1. **Check-in Diario**: Presionas el botón "¿ESTÁS VIVO?" para confirmar tu estado
 2. **Monitoreo Automático**: El sistema cuenta los días desde tu último check-in  
-3. **Alertas Preventivas**: Recibes notificaciones push recordándote hacer check-in
+3. **Alertas Preventivas**: Recibes notificaciones push **y email de respaldo** recordándote hacer check-in
 4. **Protocolo de Emergencia**: Si superas el límite configurado (ej: 15 días), se notifica a tus contactos
 5. **Acceso Protegido**: Tus contactos reciben acceso a la información crítica que decidiste compartir
 
@@ -31,7 +31,7 @@ Esa conversación me persiguió durante días. Como desarrollador freelance, aho
 ### 💓 **El Corazón del Sistema: "¿ESTÁS VIVO?"**
 - **Botón Central** - Interfaz simple con un botón que debes presionar regularmente
 - **Check-in Diario** - Confirma tu estado con un simple click cada día
-- **Recordatorios Automáticos** - Notificaciones push que te recuerdan hacer check-in
+- **Recordatorios Automáticos** - Notificaciones push + email de respaldo para asegurar que recibas el recordatorio
 - **Contador Visual** - Muestra claramente cuándo fue tu último registro de vida
 
 ### 🛡️ **Protocolo de Emergencia Digital**
@@ -204,10 +204,18 @@ AfterLife/
 {
   user_id: "user_uid",              // String - Referencia a users  
   sent_at: Timestamp,               // Timestamp - Fecha y hora del evento
-  status: "push_sent",              // String - Estado del evento (enviado, falló, pendiente)
-  type: "daily_reminder"            // String - alive_check_reminder | urgent_reminder | emergency | alive_check
+  status: "push_sent",              // String - Estado: push_sent | email_backup_sent | email_backup_failed | email_sent
+  type: "daily_reminder",           // String - daily_reminder | urgent_reminder | emergency
+  recipient: "user@email.com",      // String - (Opcional) Email destinatario para respaldos
+  error: "Error message"            // String - (Opcional) Mensaje de error si falla
 }
 ```
+
+**Estados de notificación:**
+- `push_sent`: Notificación push enviada al dispositivo
+- `email_backup_sent`: Email de respaldo enviado al usuario exitosamente
+- `email_backup_failed`: Fallo al enviar email de respaldo
+- `email_sent`: Email de emergencia enviado a contactos
 
 #### **Colección: `notification_logs`**
 ```javascript
@@ -713,17 +721,34 @@ Fields: user_id (Ascending), tags (Arrays)
 
 ## 🔧 Configuración de Cloud Scheduler
 
-La función `checkAliveStatus` se ejecuta automáticamente todos los días a las **9:55 AM (Colombia)**:
+La función `checkAliveStatus` se ejecuta automáticamente todos los días a las **8:10 AM (Colombia)**:
 
 ```javascript
-// functions/index.js - línea 23
+// functions/index.js - línea 56
 export const checkAliveStatus = onSchedule({
-  schedule: '55 9 * * *',          // Cron: minuto hora * * *
+  schedule: '10 8 * * *',          // Cron: minuto hora * * *
   timeZone: 'America/Bogota'       // Zona horaria
 }, async (event) => {
   // Lógica de verificación...
 });
 ```
+
+### **¿Qué hace esta función?**
+
+1. **Revisa todos los usuarios** registrados en la base de datos
+2. **Calcula días** desde el último check-in de cada usuario
+3. **Envía notificación push** al dispositivo del usuario
+4. **Envía email de respaldo** al correo del usuario (nuevo ✨)
+5. **Si días >= límite**: También notifica a los contactos de emergencia
+6. **Registra** todos los envíos en `notifications_sent`
+
+### **Sistema de Doble Canal (Push + Email)**
+
+Para garantizar que el usuario reciba el recordatorio diario:
+
+- 📱 **Notificación Push** (primer intento)
+- 📧 **Email de Respaldo** (siempre se envía, incluso si push funciona)
+- ✅ **Mayor fiabilidad** - Si el dispositivo no tiene conexión o el token FCM es inválido, el usuario aún recibe el email
 
 ### **Modificar Horario**
 ```javascript
